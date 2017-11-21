@@ -1,0 +1,9 @@
+RemoteSystemsTempFiles/
+build/
+.class
+.metadata/
+.externalToolBuilders/
+.recommenders/
+target/
+Servers/
+.settings/
