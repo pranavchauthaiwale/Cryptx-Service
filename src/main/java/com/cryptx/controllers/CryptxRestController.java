@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,11 +22,11 @@ public class CryptxRestController {
 	private static final Logger logger = LoggerFactory.getLogger(CryptxRestController.class);
 
 	@RequestMapping(value = "login", method = RequestMethod.POST)
-	public Map<String, String> loginUser() {
+	public ResponseEntity<?> loginUser() {
 		logger.info("Logging user In");
 		Map<String, String> resource = new HashMap<String, String>();
 		resource.put("resource", "Login user Resource");
-		return resource;
+		return new ResponseEntity<Map<String, String>>(resource, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "logout", method = RequestMethod.GET)
