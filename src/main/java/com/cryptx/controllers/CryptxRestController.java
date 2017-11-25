@@ -61,17 +61,41 @@ public class CryptxRestController {
 
 	@RequestMapping(value = "updatebankdetails", method = RequestMethod.POST)
 	public Map<String, String> updateBankDetails() {
-		logger.info("Registering for updating bank details of user");
+		logger.info("Requesting for updating bank details of user");
 		Map<String, String> resource = new HashMap<String, String>();
 		resource.put("resource", "Resource for updating bank details of user");
 		return resource;
 	}
 	
-	@RequestMapping(value="currencyhistory/{currency}", method=RequestMethod.POST)
+	@RequestMapping(value="currencyhistory/{currency}", method=RequestMethod.GET)
 	public Map<String, String> getCurrencyHistory(@PathVariable String currency) {
-		logger.info("Registering historic data of currency [" + currency + "]");
+		logger.info("Requesting historic data of currency [" + currency + "]");
 		Map<String, String> resource = new HashMap<String, String>();
         resource.put("resource", "Historic Currency Data Resource");
+        return resource;
+	}
+	
+	@RequestMapping(value="getvirtualwalletdetails", method=RequestMethod.GET)
+	public Map<String, String> getUserVirtualWallet() {
+		logger.info("Requesting virtual wallet information of user");
+		Map<String, String> resource = new HashMap<String, String>();
+        resource.put("resource", "Virtual Wallet Resource");
+        return resource;
+	}
+	
+	@RequestMapping(value="addvirtualwallet", method=RequestMethod.POST)
+	public Map<String, String> addVirtualWallet() {
+		logger.info("Requesting for adding new virtual wallet for user");
+		Map<String, String> resource = new HashMap<String, String>();
+        resource.put("resource", "Register User Resource");
+        return resource;
+	}
+	
+	@RequestMapping(value="updatevirtualwallet", method=RequestMethod.POST)
+	public Map<String, String> updateVirtualWalletDetails() {
+		logger.info("Requesting for updating virtual wallet information of user");
+		Map<String, String> resource = new HashMap<String, String>();
+        resource.put("resource", "Update Virtual Wallet Resource");
         return resource;
 	}
 }
