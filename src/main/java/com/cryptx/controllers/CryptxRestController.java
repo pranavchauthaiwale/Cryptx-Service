@@ -58,11 +58,11 @@ public class CryptxRestController {
 		return resource;
 	}
 
-	@RequestMapping(value = "register", method = RequestMethod.POST)
+	@RequestMapping(value = "updatebankdetails", method = RequestMethod.POST)
 	public Map<String, String> updateBankDetails() {
 		logger.info("Registering for updating bank details of user");
 		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Resource");
+		resource.put("resource", "Resource for updating bank details of user");
 		return resource;
 	}
 }
