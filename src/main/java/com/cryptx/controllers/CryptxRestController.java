@@ -20,7 +20,7 @@ public class CryptxRestController {
 
 	private static final Logger logger = LoggerFactory.getLogger(CryptxRestController.class);
 
-	@RequestMapping(value = "login", method = RequestMethod.GET)
+	@RequestMapping(value = "login", method = RequestMethod.POST)
 	public Map<String, String> loginUser() {
 		logger.info("Logging user In");
 		Map<String, String> resource = new HashMap<String, String>();
