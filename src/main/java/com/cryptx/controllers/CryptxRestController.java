@@ -79,7 +79,7 @@ public class CryptxRestController {
 	public Map<String, String> getUserVirtualWallet() {
 		logger.info("Requesting virtual wallet information of user");
 		Map<String, String> resource = new HashMap<String, String>();
-        resource.put("resource", "Virtual Wallet Resource");
+        resource.put("resource", "Virtual Wallet Resource of user");
         return resource;
 	}
 	
@@ -87,7 +87,7 @@ public class CryptxRestController {
 	public Map<String, String> addVirtualWallet() {
 		logger.info("Requesting for adding new virtual wallet for user");
 		Map<String, String> resource = new HashMap<String, String>();
-        resource.put("resource", "Register User Resource");
+        resource.put("resource", "Add Virtual Wallet Resource");
         return resource;
 	}
 	
@@ -96,6 +96,22 @@ public class CryptxRestController {
 		logger.info("Requesting for updating virtual wallet information of user");
 		Map<String, String> resource = new HashMap<String, String>();
         resource.put("resource", "Update Virtual Wallet Resource");
+        return resource;
+	}
+	
+	@RequestMapping(value="buy", method=RequestMethod.POST)
+	public Map<String, String> buyCurrency() {
+		logger.info("Requesting for buying specified currency");
+		Map<String, String> resource = new HashMap<String, String>();
+        resource.put("resource", "Buy Currency Resource");
+        return resource;
+	}
+	
+	@RequestMapping(value="sell", method=RequestMethod.POST)
+	public Map<String, String> sell() {
+		logger.info("Requesting for selling specified currencyr");
+		Map<String, String> resource = new HashMap<String, String>();
+        resource.put("resource", "Sell Currency Resource");
         return resource;
 	}
 }
