@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -64,5 +65,13 @@ public class CryptxRestController {
 		Map<String, String> resource = new HashMap<String, String>();
 		resource.put("resource", "Resource for updating bank details of user");
 		return resource;
+	}
+	
+	@RequestMapping(value="currencyhistory/{currency}", method=RequestMethod.POST)
+	public Map<String, String> getCurrencyHistory(@PathVariable String currency) {
+		logger.info("Registering historic data of currency [" + currency + "]");
+		Map<String, String> resource = new HashMap<String, String>();
+        resource.put("resource", "Historic Currency Data Resource");
+        return resource;
 	}
 }
