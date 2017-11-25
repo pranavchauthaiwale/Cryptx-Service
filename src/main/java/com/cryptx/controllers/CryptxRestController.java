@@ -20,7 +20,7 @@ public class CryptxRestController {
 
 	private static final Logger logger = LoggerFactory.getLogger(CryptxRestController.class);
 
-	@RequestMapping(value = "in", method = RequestMethod.GET)
+	@RequestMapping(value = "login", method = RequestMethod.GET)
 	public Map<String, String> loginUser() {
 		logger.info("Logging user In");
 		Map<String, String> resource = new HashMap<String, String>();
@@ -28,7 +28,7 @@ public class CryptxRestController {
 		return resource;
 	}
 
-	@RequestMapping(value = "out", method = RequestMethod.GET)
+	@RequestMapping(value = "logout", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void logout(HttpSession session) {
 		logger.info("Loggin-out User. Invalidating Session");
