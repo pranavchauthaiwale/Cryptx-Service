@@ -23,14 +23,14 @@ public class UserAuthService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		
-//		CryptxUser user = userServie.findUserByEmail(email);
-//		
-//		if(user == null) {
-//			throw new UsernameNotFoundException("No User With such Email-Id");
-//		}
+		CryptxUser user = userServie.findUserByEmail(email);
+		
+		if(user == null) {
+			throw new UsernameNotFoundException("No User With such Email-Id");
+		}
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<GrantedAuthority>();
 		grantedAuthorities.add(new SimpleGrantedAuthority("USER"));
-		return new org.springframework.security.core.userdetails.User("admin", "admin", grantedAuthorities);
+		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), grantedAuthorities);
 		//return null;
 	}
 
