@@ -16,14 +16,14 @@ public class UserService implements IUserService {
 	IDataAccess dataAccess;
 
 	@Override
-	public void createNewUser(CryptxUser userView) {
+	public boolean createNewUser(CryptxUser userView) {
 		String query = String.format(
 				"INSERT INTO user (name, email, phone, password, ssn,address, city, country, postalcode) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');",
 				userView.getName(), userView.getEmail(), userView.getPhone(), userView.getPassword(), userView.getSsn(),
 				userView.getAddress(), userView.getCity(), userView.getCountry(), userView.getPostalCode());
 
-		dataAccess.executeQuery(query);
-
+		ResultSet rs = dataAccess.executeQuery(query);
+		return ! (rs == null);
 	}
 
 	@Override

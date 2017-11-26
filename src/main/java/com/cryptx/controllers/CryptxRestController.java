@@ -7,18 +7,26 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cryptx.models.CryptxUser;
+import com.cryptx.services.IUserService;
+
 @RestController
 @RequestMapping("/")
 public class CryptxRestController {
 
+	@Autowired
+	IUserService userService;
+	
 	private static final Logger logger = LoggerFactory.getLogger(CryptxRestController.class);
 
 	@RequestMapping(value = "login", method = RequestMethod.POST)
@@ -37,11 +45,17 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "register", method = RequestMethod.POST)
-	public Map<String, String> signup() {
+	public ResponseEntity<?> signup(@RequestBody CryptxUser userView) {
 		logger.info("Registering new user in cryptx");
+		boolean result = userService.createNewUser(userView);
+		if(!result) {
+			Map<String, String> failureResource = new HashMap<String, String>();
+			failureResource.put("resource", "Register User Failure");
+			return new ResponseEntity<Map<String, String>>(failureResource, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		Map<String, String> resource = new HashMap<String, String>();
 		resource.put("resource", "Register User Resource");
-		return resource;
+		return new ResponseEntity<Map<String, String>>(resource, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "getbankdetails", method = RequestMethod.GET)
