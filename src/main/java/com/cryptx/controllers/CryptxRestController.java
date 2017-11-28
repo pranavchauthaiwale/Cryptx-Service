@@ -81,7 +81,7 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "payment_method/create", method = RequestMethod.POST)
-	public ResponseEntity<?> addBankDetails() {
+	public ResponseEntity<?> addPaymentDetails() {
 		logger.info("Request for adding bank details for user");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
@@ -95,19 +95,31 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "payment_method/update", method = RequestMethod.POST)
-	public Map<String, String> updatePaymentDetails() {
+	public ResponseEntity<?> updatePaymentDetails() {
 		logger.info("Requesting for updating bank details of user");
-		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Resource for updating bank details of user");
-		return resource;
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put("message", "Payment Details Updated Successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Update Payment Details Request Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 
 	@RequestMapping(value = "payment_method/delete", method = RequestMethod.POST)
-	public Map<String, String> deletePaymentDetails() {
+	public ResponseEntity<?> deletePaymentDetails() {
 		logger.info("Deleting bank details of user");
-		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Resource for Deleting bank details of user");
-		return resource;
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put("message", "Payment Details Deleted Successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Delete Payment Details Request Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 
 	@RequestMapping(value = "currencyhistory/{currency}", method = RequestMethod.GET)
