@@ -123,11 +123,17 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "currencyhistory/{currency}", method = RequestMethod.GET)
-	public Map<String, String> getCurrencyHistory(@PathVariable String currency) {
+	public ResponseEntity<?> getCurrencyHistory(@PathVariable String currency) {
 		logger.info("Requesting historic data of currency [" + currency + "]");
-		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Historic Currency Data Resource");
-		return resource;
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put("message", "Historic Currency Details");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Request Historical Currency Trends Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 
 	@RequestMapping(value = "wallet/details", method = RequestMethod.GET)
