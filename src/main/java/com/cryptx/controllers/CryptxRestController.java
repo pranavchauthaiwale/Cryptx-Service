@@ -161,7 +161,7 @@ public class CryptxRestController {
 	@RequestMapping(value = "wallet/deposit", method = RequestMethod.POST)
 	public ResponseEntity<?> depositInVirtualWallet() {
 		logger.info("Requesting for depositing in virtual wallet of user");
-		Map<String, String> resource = new HashMap<String, String>();
+		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
 			resource.put("message", "Deposited in Virtual Wallet Successfully");
 		} catch (Exception e) {
@@ -175,7 +175,7 @@ public class CryptxRestController {
 	@RequestMapping(value = "wallet/withdraw", method = RequestMethod.POST)
 	public ResponseEntity<?> withdrawFromVirtualWallet() {
 		logger.info("Requesting for withdrawing from virtual wallet of user");
-		Map<String, String> resource = new HashMap<String, String>();
+		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
 			resource.put("message", "Withdrawn from Virtual Wallet Successfully");
 		} catch (Exception e) {
@@ -187,19 +187,31 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "currency/buy", method = RequestMethod.POST)
-	public Map<String, String> buyCurrency() {
+	public ResponseEntity<?> buyCurrency() {
 		logger.info("Requesting for buying specified currency");
-		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Buy Currency Resource");
-		return resource;
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put("message", "Currency Buy Transaction Successful");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Currecny Buy Request Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 
 	@RequestMapping(value = "currency/sell", method = RequestMethod.POST)
-	public Map<String, String> sell() {
+	public ResponseEntity<?> sell() {
 		logger.info("Requesting for selling specified currencyr");
-		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Sell Currency Resource");
-		return resource;
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put("message", "Sell Currency Transaction Succesful");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Currecny Sell Request Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 
 	@RequestMapping(value = "user/profile", method = RequestMethod.GET)
