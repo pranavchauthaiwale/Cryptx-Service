@@ -60,15 +60,15 @@ public class CryptxRestController {
 		return new ResponseEntity<Map<String, String>>(resource, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "getbankdetails", method = RequestMethod.GET)
-	public Map<String, String> getBankDetails() {
+	@RequestMapping(value = "user/payment_details", method = RequestMethod.GET)
+	public Map<String, String> getPaymentDetails() {
 		logger.info("Request for bank details of user");
 		Map<String, String> resource = new HashMap<String, String>();
 		resource.put("resource", "Get Bank Details Resource");
 		return resource;
 	}
 
-	@RequestMapping(value = "addbankdetails", method = RequestMethod.POST)
+	@RequestMapping(value = "payment_method/create", method = RequestMethod.POST)
 	public Map<String, String> addBankDetails() {
 		logger.info("Request for adding bank details for user");
 		Map<String, String> resource = new HashMap<String, String>();
@@ -76,11 +76,19 @@ public class CryptxRestController {
 		return resource;
 	}
 
-	@RequestMapping(value = "updatebankdetails", method = RequestMethod.POST)
-	public Map<String, String> updateBankDetails() {
+	@RequestMapping(value = "payment_method/update", method = RequestMethod.POST)
+	public Map<String, String> updatePaymentDetails() {
 		logger.info("Requesting for updating bank details of user");
 		Map<String, String> resource = new HashMap<String, String>();
 		resource.put("resource", "Resource for updating bank details of user");
+		return resource;
+	}
+	
+	@RequestMapping(value = "payment_method/delete", method = RequestMethod.POST)
+	public Map<String, String> deletePaymentDetails() {
+		logger.info("Deleting bank details of user");
+		Map<String, String> resource = new HashMap<String, String>();
+		resource.put("resource", "Resource for Deleting bank details of user");
 		return resource;
 	}
 	
@@ -92,31 +100,39 @@ public class CryptxRestController {
         return resource;
 	}
 	
-	@RequestMapping(value="getvirtualwalletdetails", method=RequestMethod.GET)
-	public Map<String, String> getUserVirtualWallet() {
+	@RequestMapping(value="wallet/details", method=RequestMethod.GET)
+	public Map<String, String> getUserVirtualWalletDetails() {
 		logger.info("Requesting virtual wallet information of user");
 		Map<String, String> resource = new HashMap<String, String>();
         resource.put("resource", "Virtual Wallet Resource of user");
         return resource;
 	}
 	
-	@RequestMapping(value="addvirtualwallet", method=RequestMethod.POST)
-	public Map<String, String> addVirtualWallet() {
-		logger.info("Requesting for adding new virtual wallet for user");
+//	@RequestMapping(value="addvirtualwallet", method=RequestMethod.POST)
+//	public Map<String, String> addVirtualWallet() {
+//		logger.info("Requesting for adding new virtual wallet for user");
+//		Map<String, String> resource = new HashMap<String, String>();
+//        resource.put("resource", "Add Virtual Wallet Resource");
+//        return resource;
+//	}
+	
+	@RequestMapping(value="wallet/deposit", method=RequestMethod.POST)
+	public Map<String, String> depositInVirtualWallet() {
+		logger.info("Requesting for depositing in virtual wallet of user");
 		Map<String, String> resource = new HashMap<String, String>();
-        resource.put("resource", "Add Virtual Wallet Resource");
+        resource.put("resource", "Deposit Virtual Wallet Resource");
         return resource;
 	}
 	
-	@RequestMapping(value="updatevirtualwallet", method=RequestMethod.POST)
-	public Map<String, String> updateVirtualWalletDetails() {
-		logger.info("Requesting for updating virtual wallet information of user");
+	@RequestMapping(value="wallet/withdraw", method=RequestMethod.POST)
+	public Map<String, String> withdrawFromVirtualWallet() {
+		logger.info("Requesting for withdrawing from virtual wallet of user");
 		Map<String, String> resource = new HashMap<String, String>();
-        resource.put("resource", "Update Virtual Wallet Resource");
+        resource.put("resource", "Withdraw Virtual Wallet Resource");
         return resource;
 	}
 	
-	@RequestMapping(value="buy", method=RequestMethod.POST)
+	@RequestMapping(value="currency/buy", method=RequestMethod.POST)
 	public Map<String, String> buyCurrency() {
 		logger.info("Requesting for buying specified currency");
 		Map<String, String> resource = new HashMap<String, String>();
@@ -124,11 +140,27 @@ public class CryptxRestController {
         return resource;
 	}
 	
-	@RequestMapping(value="sell", method=RequestMethod.POST)
+	@RequestMapping(value="currency/sell", method=RequestMethod.POST)
 	public Map<String, String> sell() {
 		logger.info("Requesting for selling specified currencyr");
 		Map<String, String> resource = new HashMap<String, String>();
         resource.put("resource", "Sell Currency Resource");
         return resource;
+	}
+	
+	@RequestMapping(value="user/profile", method=RequestMethod.GET)
+	public ResponseEntity<?> getUserProfile(){
+		logger.info("Retrieving user profile informations");
+		Map<String, String> resource = new HashMap<String, String>();
+        resource.put("resource", "Sell Currency Resource");
+        return new ResponseEntity<Map<String, String>>(resource, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="user/update", method=RequestMethod.POST)
+	public ResponseEntity<?> updateUserProfile(){
+		logger.info("Updating user profile informations");
+		Map<String, String> resource = new HashMap<String, String>();
+        resource.put("resource", "Sell Currency Resource");
+        return new ResponseEntity<Map<String, String>>(resource, HttpStatus.OK);
 	}
 }
