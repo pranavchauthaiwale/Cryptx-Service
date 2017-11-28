@@ -60,7 +60,7 @@ public class CryptxRestController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		} catch (Exception e) {
 			e.printStackTrace();
-			resource.put("message", "Registration of new user failed");
+			resource.put("message", "Registration of New User Failed Unexpectedly");
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		}
 		return ResponseEntity.ok(resource);
