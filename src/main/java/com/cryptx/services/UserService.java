@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cryptx.dao.IDataAccess;
+import com.cryptx.exception.CryptxException;
 import com.cryptx.models.CryptxUser;
 
 @Service(IUserService.USER_SERVICE)
@@ -16,14 +17,16 @@ public class UserService implements IUserService {
 	IDataAccess dataAccess;
 
 	@Override
-	public boolean createNewUser(CryptxUser userView) {
+	public void createNewUser(CryptxUser userView) throws CryptxException {
 		String query = String.format(
 				"INSERT INTO user (name, email, phone, password, ssn,address, city, country, postalcode) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');",
 				userView.getName(), userView.getEmail(), userView.getPhone(), userView.getPassword(), userView.getSsn(),
 				userView.getAddress(), userView.getCity(), userView.getCountry(), userView.getPostalCode());
 
 		ResultSet rs = dataAccess.executeQuery(query);
-		return ! (rs == null);
+		if(rs == null) {
+			throw new CryptxException("Error in creating new user");
+		}
 	}
 
 	@Override

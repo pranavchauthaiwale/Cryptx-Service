@@ -1,11 +1,12 @@
 package com.cryptx.services;
 
+import com.cryptx.exception.CryptxException;
 import com.cryptx.models.CryptxUser;
 
 public interface IUserService {
 
 	public static final String USER_SERVICE = "UserService";
-	boolean createNewUser(CryptxUser userView);
+	void createNewUser(CryptxUser userView) throws CryptxException;
 	CryptxUser findUserByEmail(String email);
 
 }
