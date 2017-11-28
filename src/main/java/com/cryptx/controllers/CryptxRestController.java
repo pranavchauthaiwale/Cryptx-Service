@@ -67,19 +67,31 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "user/payment_details", method = RequestMethod.GET)
-	public Map<String, String> getPaymentDetails() {
+	public ResponseEntity<?> getPaymentDetails() {
 		logger.info("Request for bank details of user");
-		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Get Bank Details Resource");
-		return resource;
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put("message", "Payment Details");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Payment Details Request Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 
 	@RequestMapping(value = "payment_method/create", method = RequestMethod.POST)
-	public Map<String, String> addBankDetails() {
+	public ResponseEntity<?> addBankDetails() {
 		logger.info("Request for adding bank details for user");
-		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Add bank Details Resource");
-		return resource;
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put("message", "Bank Details Added Successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Add Bank Details Request Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 
 	@RequestMapping(value = "payment_method/update", method = RequestMethod.POST)
