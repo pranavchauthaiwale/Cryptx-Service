@@ -217,16 +217,28 @@ public class CryptxRestController {
 	@RequestMapping(value = "user/profile", method = RequestMethod.GET)
 	public ResponseEntity<?> getUserProfile() {
 		logger.info("Retrieving user profile informations");
-		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Sell Currency Resource");
-		return new ResponseEntity<Map<String, String>>(resource, HttpStatus.OK);
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put("message", "User Profile Details");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Request for User Profile Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 
 	@RequestMapping(value = "user/update", method = RequestMethod.POST)
 	public ResponseEntity<?> updateUserProfile() {
 		logger.info("Updating user profile informations");
-		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Sell Currency Resource");
-		return new ResponseEntity<Map<String, String>>(resource, HttpStatus.OK);
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put("message", "User Profile Updated Successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Request for Updating User Profile Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 }
