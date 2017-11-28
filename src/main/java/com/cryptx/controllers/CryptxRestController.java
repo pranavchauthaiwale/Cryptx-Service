@@ -137,11 +137,17 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "wallet/details", method = RequestMethod.GET)
-	public Map<String, String> getUserVirtualWalletDetails() {
+	public ResponseEntity<?> getUserVirtualWalletDetails() {
 		logger.info("Requesting virtual wallet information of user");
-		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Virtual Wallet Resource of user");
-		return resource;
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put("message", "User Virtual Wallet Details");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Request for User Wallet Details Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 
 	// @RequestMapping(value="addvirtualwallet", method=RequestMethod.POST)
@@ -153,19 +159,31 @@ public class CryptxRestController {
 	// }
 
 	@RequestMapping(value = "wallet/deposit", method = RequestMethod.POST)
-	public Map<String, String> depositInVirtualWallet() {
+	public ResponseEntity<?> depositInVirtualWallet() {
 		logger.info("Requesting for depositing in virtual wallet of user");
 		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Deposit Virtual Wallet Resource");
-		return resource;
+		try {
+			resource.put("message", "Deposited in Virtual Wallet Successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Deposit Request Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 
 	@RequestMapping(value = "wallet/withdraw", method = RequestMethod.POST)
-	public Map<String, String> withdrawFromVirtualWallet() {
+	public ResponseEntity<?> withdrawFromVirtualWallet() {
 		logger.info("Requesting for withdrawing from virtual wallet of user");
 		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Withdraw Virtual Wallet Resource");
-		return resource;
+		try {
+			resource.put("message", "Withdrawn from Virtual Wallet Successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put("message", "Withdraw Request Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
 	}
 
 	@RequestMapping(value = "currency/buy", method = RequestMethod.POST)
