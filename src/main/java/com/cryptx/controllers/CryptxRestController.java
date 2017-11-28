@@ -33,10 +33,10 @@ public class CryptxRestController {
 
 	@RequestMapping(value = "login", method = RequestMethod.POST)
 	public ResponseEntity<?> loginUser() {
-		logger.info("Logging user In");
+		logger.info("Logging user In");  
 		Map<String, String> resource = new HashMap<String, String>();
 		resource.put("resource", "Login user Resource");
-		return new ResponseEntity<Map<String, String>>(resource, HttpStatus.OK);
+		return ResponseEntity.ok(resource);
 	}
 
 	@RequestMapping(value = "logout", method = RequestMethod.GET)
