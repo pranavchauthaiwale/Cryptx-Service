@@ -45,7 +45,7 @@ public class CryptxSecurityConfig extends WebSecurityConfigurerAdapter {
     	http
                 .authorizeRequests()
                 .antMatchers("/register").permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/login").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .requestCache()
@@ -64,8 +64,8 @@ public class CryptxSecurityConfig extends WebSecurityConfigurerAdapter {
                 .addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .exposedHeaders("Authorization")
+                .allowedHeaders("Authorization", "Origin", "X-Requested-With", "Content-Type", "Accept", "x-auth-token")
+                .exposedHeaders("Authorization", "x-auth-token")
                 .maxAge(3600);
             }
         };
