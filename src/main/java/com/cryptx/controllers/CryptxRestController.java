@@ -1,6 +1,8 @@
 package com.cryptx.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
@@ -19,8 +21,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cryptx.exception.CryptxException;
-import com.cryptx.models.CryptxUser;
 import com.cryptx.services.IUserService;
+import com.cryptx.views.CryptxUserView;
 
 @CrossOrigin
 @RestController
@@ -35,8 +37,118 @@ public class CryptxRestController {
 	@RequestMapping(value = "login", method = RequestMethod.POST)
 	public ResponseEntity<?> loginUser() {
 		logger.info("Logging user In");
-		Map<String, String> resource = new HashMap<String, String>();
-		resource.put("resource", "Login user Resource");
+		Map<String, Object> resource = new HashMap<String, Object>();
+		
+		//User Data
+		Map<String, Object> userData = new HashMap<String, Object>(); 
+		userData.put("name", "Vineet");
+		userData.put("email", "vinzee93@gmail.com");
+		userData.put("address", "Maryland");
+		userData.put("city", "Baltimore");
+		userData.put("country", "United States");
+		userData.put("postalCode", "21227");
+		resource.put("user", userData);
+		
+		//Wallet Data
+		Map<String, Object> walletData = new HashMap<String, Object>();
+		walletData.put("balance", 123);
+		resource.put("virtualWallet", walletData);
+		
+		//Bank Data
+		Map<String, Object> bankAccOne = new HashMap<String, Object>();
+		bankAccOne.put("id", "1");
+		bankAccOne.put("name", "Bank of America");
+		bankAccOne.put("account_number", "1234");
+		bankAccOne.put("type", "credit");
+		
+		Map<String, Object> bankAccTwo = new HashMap<String, Object>();
+		bankAccTwo.put("id", "2");
+		bankAccTwo.put("name", "PNC");
+		bankAccTwo.put("account_number", "6789");
+		bankAccTwo.put("type", "debit");
+		
+		List<Map<String, Object>> bankDetails = new ArrayList<Map<String,Object>>();
+		bankDetails.add(bankAccOne);
+		bankDetails.add(bankAccTwo);
+		resource.put("bankAccounts", bankDetails);
+		
+		//Investment Data
+		Map<String, Object> investOne = new HashMap<String, Object>();
+		investOne.put("currency", "Bitcoin");
+		investOne.put("amount", 0.4);
+		
+		Map<String, Object> investTwo = new HashMap<String, Object>();
+		investTwo.put("currency", "Litecoin");
+		investTwo.put("amount", 2.3);
+		
+		Map<String, Object> investThree = new HashMap<String, Object>();
+		investThree.put("currency", "Ethereum");
+		investThree.put("amount", 3.5);
+		
+		Map<String, Object> investFour = new HashMap<String, Object>();
+		investFour.put("currency", "Ripple");
+		investFour.put("amount", 0);
+		
+		List<Map<String, Object>> investments = new ArrayList<Map<String,Object>>();
+		investments.add(investOne);
+		investments.add(investTwo);
+		investments.add(investThree);
+		investments.add(investFour);
+		resource.put("investments", investments);
+		
+		//Transaction Data
+		Map<String, Object> transOne = new HashMap<String, Object>();
+		transOne.put("type", "Buy");
+		transOne.put("currency", "Bitcoin");
+		transOne.put("amount", "$36.738");
+		transOne.put("date", 1510930059);
+		
+		Map<String, Object> transTwo = new HashMap<String, Object>();
+		transTwo.put("type", "Buy");
+		transTwo.put("currency", "Bitcoin");
+		transTwo.put("amount", "$36.738");
+		transTwo.put("date", 1510930059);
+		
+		Map<String, Object> transThree = new HashMap<String, Object>();
+		transThree.put("type", "Buy");
+		transThree.put("currency", "Bitcoin");
+		transThree.put("amount", "$36.738");
+		transThree.put("date", 1510930059);
+		
+		Map<String, Object> transFour = new HashMap<String, Object>();
+		transFour.put("type", "Buy");
+		transFour.put("currency", "Bitcoin");
+		transFour.put("amount", "$36.738");
+		transFour.put("date", 1510930059);
+		
+		List<Map<String, Object>> transactions = new ArrayList<Map<String,Object>>();
+		transactions.add(transOne);
+		transactions.add(transTwo);
+		transactions.add(transThree);
+		transactions.add(transFour);
+		resource.put("transactions", transactions);
+		
+		String JsonString = "userData = {\r\n" + 
+				"        firstName: 'Vineet', lastName: 'Ahirkar', email: 'vinzee93@gmail.com',\r\n" + 
+				"        address: 'Maryland, US', city: 'baltimore', country: 'United States', postalCode: '21227',\r\n" + 
+				"        virtual_wallet: { balance: 123 },\r\n" + 
+				"        bank_accounts: [\r\n" + 
+				"          { id: '1', name: 'Bank of America', account_number: '1234', type: 'credit' }, {id: '2', name: 'PNC', account_number: '6789', type: 'debit'}\r\n" + 
+				"        ],\r\n" + 
+				"        investments: [\r\n" + 
+				"          { currency: 'Bitcoin', amount: 0.4 },\r\n" + 
+				"          { currency: 'Litecoin', amount: 2.3 },\r\n" + 
+				"          { currency: 'Ethereum', amount: 3.5 },\r\n" + 
+				"          { currency: 'Ripple', amount: 0 }\r\n" + 
+				"        ],\r\n" + 
+				"        transactions: [\r\n" + 
+				"          { type: 'Buy', currency: 'Bitcoin', amount: '$36.738', date: 1510930059 },\r\n" + 
+				"          { type: 'Buy', currency: 'Bitcoin', amount: '$36.738', date: 1510930059 },\r\n" + 
+				"          { type: 'Buy', currency: 'Bitcoin', amount: '$36.738', date: 1510930059 },\r\n" + 
+				"          { type: 'Buy', currency: 'Bitcoin', amount: '$36.738', date: 1510930059 }\r\n" + 
+				"        ]\r\n" + 
+				"      }";
+		
 		return ResponseEntity.ok(resource);
 	}
 
@@ -48,11 +160,11 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "register", method = RequestMethod.POST)
-	public ResponseEntity<?> signup(@RequestBody CryptxUser userView) {
+	public ResponseEntity<?> signup(@RequestBody CryptxUserView userView) {
 		logger.info("Registering new user in cryptx");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
-			userService.createNewUser(userView);
+			userService.createNewUser(userView.getUser());
 			resource.put("message", "User Created Successfully");
 		} catch (CryptxException e) {
 			e.printStackTrace();
@@ -219,7 +331,95 @@ public class CryptxRestController {
 		logger.info("Retrieving user profile informations");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
-			resource.put("message", "User Profile Details");
+			
+			//User Data
+			Map<String, Object> userData = new HashMap<String, Object>(); 
+			userData.put("name", "Vineet");
+			userData.put("email", "vinzee93@gmail.com");
+			userData.put("address", "Maryland");
+			userData.put("city", "Baltimore");
+			userData.put("country", "United States");
+			userData.put("postalCode", "21227");
+			resource.put("user", userData);
+			
+			//Wallet Data
+			Map<String, Object> walletData = new HashMap<String, Object>();
+			walletData.put("balance", 123);
+			resource.put("virtualWallet", walletData);
+			
+			//Bank Data
+			Map<String, Object> bankAccOne = new HashMap<String, Object>();
+			bankAccOne.put("id", "1");
+			bankAccOne.put("name", "Bank of America");
+			bankAccOne.put("account_number", "1234");
+			bankAccOne.put("type", "credit");
+			
+			Map<String, Object> bankAccTwo = new HashMap<String, Object>();
+			bankAccTwo.put("id", "2");
+			bankAccTwo.put("name", "PNC");
+			bankAccTwo.put("account_number", "6789");
+			bankAccTwo.put("type", "debit");
+			
+			List<Map<String, Object>> bankDetails = new ArrayList<Map<String,Object>>();
+			bankDetails.add(bankAccOne);
+			bankDetails.add(bankAccTwo);
+			resource.put("bankAccounts", bankDetails);
+			
+			//Investment Data
+			Map<String, Object> investOne = new HashMap<String, Object>();
+			investOne.put("currency", "Bitcoin");
+			investOne.put("amount", 0.4);
+			
+			Map<String, Object> investTwo = new HashMap<String, Object>();
+			investTwo.put("currency", "Litecoin");
+			investTwo.put("amount", 2.3);
+			
+			Map<String, Object> investThree = new HashMap<String, Object>();
+			investThree.put("currency", "Ethereum");
+			investThree.put("amount", 3.5);
+			
+			Map<String, Object> investFour = new HashMap<String, Object>();
+			investFour.put("currency", "Ripple");
+			investFour.put("amount", 0);
+			
+			List<Map<String, Object>> investments = new ArrayList<Map<String,Object>>();
+			investments.add(investOne);
+			investments.add(investTwo);
+			investments.add(investThree);
+			investments.add(investFour);
+			resource.put("investments", investments);
+			
+			//Transaction Data
+			Map<String, Object> transOne = new HashMap<String, Object>();
+			transOne.put("type", "Buy");
+			transOne.put("currency", "Bitcoin");
+			transOne.put("amount", "$36.738");
+			transOne.put("date", 1510930059);
+			
+			Map<String, Object> transTwo = new HashMap<String, Object>();
+			transTwo.put("type", "Buy");
+			transTwo.put("currency", "Bitcoin");
+			transTwo.put("amount", "$36.738");
+			transTwo.put("date", 1510930059);
+			
+			Map<String, Object> transThree = new HashMap<String, Object>();
+			transThree.put("type", "Buy");
+			transThree.put("currency", "Bitcoin");
+			transThree.put("amount", "$36.738");
+			transThree.put("date", 1510930059);
+			
+			Map<String, Object> transFour = new HashMap<String, Object>();
+			transFour.put("type", "Buy");
+			transFour.put("currency", "Bitcoin");
+			transFour.put("amount", "$36.738");
+			transFour.put("date", 1510930059);
+			
+			List<Map<String, Object>> transactions = new ArrayList<Map<String,Object>>();
+			transactions.add(transOne);
+			transactions.add(transTwo);
+			transactions.add(transThree);
+			transactions.add(transFour);
+			resource.put("transactions", transactions);
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put("message", "Request for User Profile Failed Unexpectedly");
