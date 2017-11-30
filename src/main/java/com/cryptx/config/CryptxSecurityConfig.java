@@ -1,6 +1,7 @@
 package com.cryptx.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.Http401AuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -44,9 +45,15 @@ public class CryptxSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
     	http
                 .authorizeRequests()
-                .antMatchers("/register").permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/register")
+                	.permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**")
+                	.permitAll()
+                .anyRequest()
+                	.authenticated()
+                .and()
+                .exceptionHandling()
+                	.authenticationEntryPoint(new Http401AuthenticationEntryPoint("FormBased"))
                 .and()
                 .requestCache()
                 .requestCache(new NullRequestCache())
