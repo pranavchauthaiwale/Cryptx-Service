@@ -7,6 +7,6 @@ public interface IUserService {
 
 	public static final String USER_SERVICE = "UserService";
 	void createNewUser(CryptxUser userView) throws CryptxException;
-	CryptxUser findUserByEmail(String email);
+	CryptxUser findUserByEmail(String email) throws CryptxException;
 
 }

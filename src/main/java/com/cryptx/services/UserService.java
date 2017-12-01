@@ -3,6 +3,8 @@ package com.cryptx.services;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,8 @@ import com.cryptx.models.CryptxUser;
 
 @Service(IUserService.USER_SERVICE)
 public class UserService implements IUserService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
 	IDataAccess dataAccess;
@@ -22,50 +26,51 @@ public class UserService implements IUserService {
 				"INSERT INTO user (name, email, phone, password, ssn,address, city, country, postalcode) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');",
 				userView.getName(), userView.getEmail(), userView.getPhone(), userView.getPassword(), userView.getSsn(),
 				userView.getAddress(), userView.getCity(), userView.getCountry(), userView.getPostalCode());
-
-		ResultSet rs = dataAccess.executeQuery(query);
-		if(rs == null) {
+		try {
+			dataAccess.executeQuery(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new CryptxException("Error in creating new user");
 		}
 	}
 
 	@Override
-	public CryptxUser findUserByEmail(String email) {
+	public CryptxUser findUserByEmail(String email) throws CryptxException {
 		String query = String.format("Select * FROM user where email='%s'", email);
 
-		ResultSet rs = dataAccess.executeQuery(query);
+		ResultSet rs;
 		try {
-			if(!rs.isBeforeFirst()) {
-				return null;
+			rs = dataAccess.executeQuery(query);
+			if (!rs.isBeforeFirst()) {
+				throw new CryptxException("Resultset Empty");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+			throw new CryptxException("SQL Exception. Error: " + e.getMessage());
 		}
 		return buildUserFromResultSet(rs);
 	}
-	
-	private CryptxUser buildUserFromResultSet(ResultSet resultSet) {
-		
+
+	private CryptxUser buildUserFromResultSet(ResultSet resultSet) throws CryptxException {
+
 		CryptxUser user = new CryptxUser();
 		try {
-			while(resultSet.next()) {
-				user.setName(resultSet.getString(1));
-				user.setEmail(resultSet.getString(2));
-				user.setPhone(resultSet.getString(3));
-				user.setPassword(resultSet.getString(4));
-				user.setSsn(resultSet.getString(5));
-				user.setAddress(resultSet.getString(6));
-				user.setCity(resultSet.getString(7));
-				user.setCountry(resultSet.getString(8));
-				user.setPostalCode(resultSet.getString(9));
+			while (resultSet.next()) {
+				user.setName(resultSet.getString("name"));
+				user.setEmail(resultSet.getString("email"));
+				user.setPhone(resultSet.getString("phone"));
+				user.setPassword(resultSet.getString("password"));
+				user.setSsn(resultSet.getString("ssn"));
+				user.setAddress(resultSet.getString("address"));
+				user.setCity(resultSet.getString("city"));
+				user.setCountry(resultSet.getString("country"));
+				user.setPostalCode(resultSet.getString("postalcode"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+			throw new CryptxException("SQL Exception. Error: " + e.getMessage());
 		}
 		return user;
 	}
-	
 
 }
