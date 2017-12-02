@@ -1,0 +1,71 @@
+{
+    "paymentMethods": [
+        {
+            "account_number": "1234",
+            "name": "Bank of America",
+            "id": "1",
+            "type": "credit"
+        },
+        {
+            "account_number": "6789",
+            "name": "PNC",
+            "id": "2",
+            "type": "debit"
+        }
+    ],
+    "investments": [
+        {
+            "amount": 0.4,
+            "currency": "Bitcoin"
+        },
+        {
+            "amount": 2.3,
+            "currency": "Litecoin"
+        },
+        {
+            "amount": 3.5,
+            "currency": "Ethereum"
+        },
+        {
+            "amount": 0,
+            "currency": "Ripple"
+        }
+    ],
+    "transactions": [
+        {
+            "date": 1510930059,
+            "amount": "$36.738",
+            "currency": "Bitcoin",
+            "type": "Buy"
+        },
+        {
+            "date": 1510930059,
+            "amount": "$36.738",
+            "currency": "Bitcoin",
+            "type": "Buy"
+        },
+        {
+            "date": 1510930059,
+            "amount": "$36.738",
+            "currency": "Bitcoin",
+            "type": "Buy"
+        },
+        {
+            "date": 1510930059,
+            "amount": "$36.738",
+            "currency": "Bitcoin",
+            "type": "Buy"
+        }
+    ],
+    "user": {
+        "country": "United States",
+        "address": "Maryland",
+        "city": "Baltimore",
+        "postalCode": "21227",
+        "name": "Vineet",
+        "email": "vinzee93@gmail.com"
+    },
+    "virtualWallet": {
+        "balance": 123
+    }
+}

@@ -2,6 +2,7 @@ package com.cryptx.models;
 
 public class CryptxUser {
 
+	private int userId;
 	private String name;
 	private String email;
 	private String phone;
@@ -11,6 +12,14 @@ public class CryptxUser {
 	private String city;
 	private String country;
 	private String postalCode;
+
+	public int getUserId() {
+		return userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
 
 	public String getName() {
 		return name;
@@ -87,8 +96,22 @@ public class CryptxUser {
 	@Override
 	public String toString() {
 		return String.format(
-				"Name : [%s], email :[%s], phone:[%s], password:[%s], ssn:[%s], address:[%s], city:[%s], country:[%s], postalcode:[%s]",
-				this.getName(), this.getEmail(), this.getPhone(), this.getPassword(), this.getSsn(), this.getAddress(),
+				"User Id: [%s], Name : [%s], email :[%s], phone:[%s], password:[%s], ssn:[%s], address:[%s], city:[%s], country:[%s], postalcode:[%s]",
+				this.getUserId(), this.getName(), this.getEmail(), this.getPhone(), this.getPassword(), this.getSsn(), this.getAddress(),
 				this.getCity(), this.getCountry(), this.getPostalCode());
+	}
+
+	public static CryptxUser getDummyUserData() {
+		CryptxUser dummyUser = new CryptxUser();
+		dummyUser.setUserId(1);
+		dummyUser.setName("Vineet Ahirkar");
+		dummyUser.setEmail("vineeta1@umbc.edu");
+		dummyUser.setPhone("1234567852");
+		dummyUser.setSsn("555-88-9999");
+		dummyUser.setAddress("4754 Belwood Green");
+		dummyUser.setCity("Baltimore");
+		dummyUser.setCountry("US");
+		dummyUser.setPostalCode("21227");
+		return dummyUser;
 	}
 }

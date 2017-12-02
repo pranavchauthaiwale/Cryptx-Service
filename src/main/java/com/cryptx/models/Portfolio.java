@@ -56,5 +56,15 @@ public class Portfolio {
 	public void setWalletBalance(double walletBalance) {
 		this.walletBalance = walletBalance;
 	}
+	
+	public static Portfolio getDummyPortfolio() {
+		Portfolio dummyuserPortfolio = new Portfolio();
+		dummyuserPortfolio.setPortfolioId(1);
+		dummyuserPortfolio.setUserId(1);;
+		dummyuserPortfolio.setBitcoin(0.4);
+		dummyuserPortfolio.setLitecoin(2.3);
+		dummyuserPortfolio.setEthereum(3.5);
+		return dummyuserPortfolio;
+	}
 
 }

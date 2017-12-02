@@ -4,7 +4,7 @@ public class VirtualWallet {
 
 	private int virtualWalletId;
 	private int userId;
-	private double balance;
+	private double amount;
 
 	public int getVirtualWalletId() {
 		return virtualWalletId;
@@ -22,12 +22,20 @@ public class VirtualWallet {
 		this.userId = userId;
 	}
 
-	public double getBalance() {
-		return balance;
+	public double getAmount() {
+		return amount;
 	}
 
-	public void setBalance(double balance) {
-		this.balance = balance;
+	public void setAmount(double amount) {
+		this.amount = amount;
+	}
+
+	public static VirtualWallet getDummyVirtualWalletDetails() {
+		VirtualWallet dummyVirtualWallet = new VirtualWallet();
+		dummyVirtualWallet.setUserId(1);
+		dummyVirtualWallet.setVirtualWalletId(1);
+		dummyVirtualWallet.setAmount(100000);
+		return dummyVirtualWallet;
 	}
 
 }

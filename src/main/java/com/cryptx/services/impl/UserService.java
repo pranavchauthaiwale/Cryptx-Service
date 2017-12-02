@@ -57,6 +57,7 @@ public class UserService implements IUserService {
 		CryptxUser user = new CryptxUser();
 		try {
 			while (resultSet.next()) {
+				user.setUserId(resultSet.getInt("userid"));
 				user.setName(resultSet.getString("name"));
 				user.setEmail(resultSet.getString("email"));
 				user.setPhone(resultSet.getString("phone"));

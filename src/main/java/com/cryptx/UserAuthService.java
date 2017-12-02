@@ -35,7 +35,7 @@ public class UserAuthService implements UserDetailsService {
 			logger.info("Exception in loading user by email: " + email);
 			logger.error("Error message: " + e.getMessage());
 			e.printStackTrace();
-			throw new UsernameNotFoundException("No User With such Email-Id");
+			throw new UsernameNotFoundException("Invalid username/password");
 		}
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<GrantedAuthority>();
 		grantedAuthorities.add(new SimpleGrantedAuthority("USER"));
