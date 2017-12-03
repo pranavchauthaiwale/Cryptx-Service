@@ -202,7 +202,7 @@ public class CryptxRestController {
 			transactionService.recordWalletDeposit(virtualWalletView, userId);
 			portfolioService.updatePortfolioAmount(userWallet.getAmount(), userId);
 			resource.put(message, "Deposited in Virtual Wallet Successfully");
-			resource.put(data, VirtualWallet.getDummyVirtualWalletDetails());
+			resource.put(data, userWallet);
 		} catch (CryptxException e) {
 			e.printStackTrace();
 			resource.put(message, e.getMessage());
@@ -227,7 +227,7 @@ public class CryptxRestController {
 			transactionService.recordWalletithdraw(virtualWalletView, userId);
 			portfolioService.updatePortfolioAmount(userWallet.getAmount(), userId);
 			resource.put(message, "Withdrawn from Virtual Wallet Successfully");
-			resource.put(data, VirtualWallet.getDummyVirtualWalletDetails());
+			resource.put(data, userWallet);
 		} catch (CryptxException e) {
 			e.printStackTrace();
 			resource.put(message, e.getMessage());
