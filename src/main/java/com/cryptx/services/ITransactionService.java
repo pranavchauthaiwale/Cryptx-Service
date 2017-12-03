@@ -15,9 +15,9 @@ public interface ITransactionService {
 	
 	void recordWalletithdraw(VirtualWalletView userVirtualWallet, int userId) throws CryptxException;
 
-	void doSell(TransactionRequestView transactionRequestView) throws CryptxException;
+	void doSell(TransactionRequestView transactionRequestView, int userId) throws CryptxException;
 
-	void doBuy(TransactionRequestView transactionRequestView) throws CryptxException;
+	void doBuy(TransactionRequestView transactionRequestView, int userId) throws CryptxException;
 
 	List<Transaction> getUserTransaction(int userId) throws CryptxException;
 }

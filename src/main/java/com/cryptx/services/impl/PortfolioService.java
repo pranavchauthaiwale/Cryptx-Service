@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.cryptx.dao.IDataAccess;
 import com.cryptx.exception.CryptxException;
 import com.cryptx.models.Portfolio;
-import com.cryptx.models.VirtualWallet;
 import com.cryptx.services.IPortfolioService;
 
 @Service(IPortfolioService.PORTFOLIO_SERVICE)
@@ -38,26 +37,28 @@ public class PortfolioService implements IPortfolioService {
 		return buildPortfolioFromResultSet(rs);
 	}
 
-	@Override
-	public Portfolio updatePortfolioAmount(double amount, int userId) throws CryptxException {
-
-		Portfolio userPortfolio = getUserPortfolio(userId);
-
-		if (userPortfolio == null) {
-			createUserPortfolio(userId);
-		}
-
-		String query = String.format("UPDATE wallet SET amount = %f WHERE userid = %d", amount,
-				userId);
-
-		try {
-			dataAccess.executeQuery(query);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new CryptxException("Error in Updating Virtual Amount in Portfolio");
-		}
-		return getUserPortfolio(userId);
-	}
+	// @Override
+	// public Portfolio updatePortfolioAmount(double amount, int userId) throws
+	// CryptxException {
+	//
+	// Portfolio userPortfolio = getUserPortfolio(userId);
+	//
+	// if (userPortfolio == null) {
+	// createUserPortfolio(userId);
+	// }
+	//
+	// String query = String.format("UPDATE wallet SET amount = %f WHERE userid =
+	// %d", amount,
+	// userId);
+	//
+	// try {
+	// dataAccess.executeQuery(query);
+	// } catch (SQLException e) {
+	// e.printStackTrace();
+	// throw new CryptxException("Error in Updating Virtual Amount in Portfolio");
+	// }
+	// return getUserPortfolio(userId);
+	// }
 
 	private Portfolio buildPortfolioFromResultSet(ResultSet resultSet) throws CryptxException {
 		Portfolio userPortfolio = new Portfolio();
@@ -87,6 +88,63 @@ public class PortfolioService implements IPortfolioService {
 			e.printStackTrace();
 			throw new CryptxException("Error in Creating Portfolio for user");
 		}
+	}
+
+	@Override
+	public void updatePortfolio(String cryptoCurrency, double amount, int userId) throws CryptxException {
+
+		Portfolio userPortfolio = getUserPortfolio(userId);
+
+		if (userPortfolio == null) {
+			createUserPortfolio(userId);
+			userPortfolio = getUserPortfolio(userId);
+		}
+
+		String updateString;
+
+		if (cryptoCurrency.equalsIgnoreCase("Bitcoin")) {
+			updateString = String.format("bitcoin = %f", amount);
+		} else if (cryptoCurrency.equalsIgnoreCase("Ethereum")) {
+			updateString = String.format("ethereum = %f", amount);
+		} else if (cryptoCurrency.equalsIgnoreCase("Litecoin")) {
+			updateString = String.format("litecoin = %f", amount);
+		} else {
+			updateString = String.format("amount = %f", amount);
+		}
+
+		String query = String.format("UPDATE portfolio SET %s WHERE portfolioid = %f", updateString, amount);
+
+		try {
+			dataAccess.executeQuery(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("Error in Updating User Portfolio");
+		}
+	}
+
+	@Override
+	public double getAmount(String cryptoCurrency, int userId) throws CryptxException {
+
+		Portfolio userPortfolio = getUserPortfolio(userId);
+
+		if (userPortfolio == null) {
+			createUserPortfolio(userId);
+			userPortfolio = getUserPortfolio(userId);
+		}
+
+		double amount;
+
+		if (cryptoCurrency.equalsIgnoreCase("Bitcoin")) {
+			amount = userPortfolio.getBitcoin();
+		} else if (cryptoCurrency.equalsIgnoreCase("Ethereum")) {
+			amount = userPortfolio.getEthereum();
+		} else if (cryptoCurrency.equalsIgnoreCase("Litecoin")) {
+			amount = userPortfolio.getLitecoin();
+		} else {
+			amount = userPortfolio.getAmount();
+		}
+
+		return amount;
 	}
 
 }

@@ -21,13 +21,14 @@ public class TransactionService implements ITransactionService {
 
 	@Autowired
 	IDataAccess dataAccess;
-	
+
 	@Override
 	public void recordWalletDeposit(VirtualWalletView virtualWalletView, int userId) throws CryptxException {
 		Date date = new Date();
-		String query = String.format("INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %d, %d, %ts )",
-				virtualWalletView.getPortfolioId(), userId, "Deposit", "USD", 
-				virtualWalletView.getAmount(), virtualWalletView.getAmount(), date);
+		String query = String.format(
+				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %f, %f, %ts )",
+				virtualWalletView.getPortfolioId(), userId, "Deposit", "USD", virtualWalletView.getAmount(),
+				virtualWalletView.getAmount(), date);
 		try {
 			dataAccess.executeQuery(query);
 		} catch (SQLException e) {
@@ -35,25 +36,26 @@ public class TransactionService implements ITransactionService {
 			throw new CryptxException("Error in Wallet Deposit Transaction");
 		}
 	}
-	
+
 	@Override
 	public void recordWalletithdraw(VirtualWalletView virtualWalletView, int userId) throws CryptxException {
 		Date date = new Date();
-		String query = String.format("INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %d, %d, %ts )",
-				virtualWalletView.getPortfolioId(), userId, "Withdraw", "USD", 
-				virtualWalletView.getAmount(), virtualWalletView.getAmount(), date);
+		String query = String.format(
+				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %f, %f, %ts )",
+				virtualWalletView.getPortfolioId(), userId, "Withdraw", "USD", virtualWalletView.getAmount(),
+				virtualWalletView.getAmount(), date);
 		try {
 			dataAccess.executeQuery(query);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new CryptxException("Error in Updating Transaction");
-		}		
+			throw new CryptxException("Error in Wallet Withdraw Transaction");
+		}
 	}
-
 
 	@Override
 	public List<Transaction> getUserTransaction(int userId) throws CryptxException {
-		String query = String.format("SELECT transactionid, portfolioid, trans_type, transtime FROM usertransaction where userid = %d", userId);
+		String query = String.format(
+				"SELECT transactionid, portfolioid, type, transtime FROM usertransaction where userid = %d", userId);
 		ResultSet rs;
 		try {
 			rs = dataAccess.executeQuery(query);
@@ -64,20 +66,39 @@ public class TransactionService implements ITransactionService {
 			e.printStackTrace();
 			throw new CryptxException("SQL Exception. Error: " + e.getMessage());
 		}
-		
+
 		return buildTransactionListFromResultSet(rs);
-	}
-	
-	@Override
-	public void doSell(TransactionRequestView transactionRequestView) throws CryptxException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
-	public void doBuy(TransactionRequestView transactionRequestView) throws CryptxException {
-		// TODO Auto-generated method stub
-		
+	public void doSell(TransactionRequestView transactionRequest, int userId) throws CryptxException {
+		String query = String.format(
+				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %f, %f, %f)",
+				transactionRequest.getPortfolioId(), userId, transactionRequest.getType(),
+				transactionRequest.getCurrency(), transactionRequest.getNumberOfCoins(),
+				transactionRequest.getTransactionAmount(), transactionRequest.getTransactionTime());
+		try {
+			dataAccess.executeQuery(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("Error in Sell Transaction");
+		}
+	}
+
+	@Override
+	public void doBuy(TransactionRequestView transactionRequest, int userId) throws CryptxException {
+		String query = String.format(
+				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %f, %f, %f)",
+				transactionRequest.getPortfolioId(), userId, transactionRequest.getType(),
+				transactionRequest.getCurrency(), transactionRequest.getNumberOfCoins(),
+				transactionRequest.getTransactionAmount(), transactionRequest.getTransactionTime());
+		try {
+			dataAccess.executeQuery(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("Error in Buy Transaction");
+		}
+
 	}
 
 	private List<Transaction> buildTransactionListFromResultSet(ResultSet resultSet) throws CryptxException {
@@ -101,6 +122,4 @@ public class TransactionService implements ITransactionService {
 		}
 		return userTransactionList;
 	}
-
-	
 }

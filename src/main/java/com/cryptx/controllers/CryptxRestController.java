@@ -24,12 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cryptx.exception.CryptxException;
 import com.cryptx.models.CryptxUser;
 import com.cryptx.models.PaymentMethod;
+import com.cryptx.models.Portfolio;
 import com.cryptx.models.Transaction;
 import com.cryptx.models.VirtualWallet;
 import com.cryptx.services.IPortfolioService;
 import com.cryptx.services.ITransactionService;
 import com.cryptx.services.IUserService;
 import com.cryptx.services.IVirtualWalletService;
+import com.cryptx.views.TransactionRequestView;
 import com.cryptx.views.UserProfileView;
 import com.cryptx.views.VirtualWalletView;
 
@@ -198,9 +200,15 @@ public class CryptxRestController {
 		try {
 			VirtualWalletView virtualWalletView = walletView.get("walletRequest");
 			int userId = userService.findUserByEmail(principal.getName()).getUserId();
-			VirtualWallet userWallet = virtualWalletService.deposit(virtualWalletView.getAmount(), userId);
+
+			virtualWalletService.deposit(virtualWalletView.getAmount(), userId);
+
+			VirtualWallet userWallet = virtualWalletService.getUserVirtualWallet(userId);
+
 			transactionService.recordWalletDeposit(virtualWalletView, userId);
-			portfolioService.updatePortfolioAmount(userWallet.getAmount(), userId);
+
+			portfolioService.updatePortfolio("USD", userWallet.getAmount(), userId);
+
 			resource.put(message, "Deposited in Virtual Wallet Successfully");
 			resource.put(data, userWallet);
 		} catch (CryptxException e) {
@@ -223,9 +231,15 @@ public class CryptxRestController {
 		try {
 			VirtualWalletView virtualWalletView = walletView.get("walletRequest");
 			int userId = userService.findUserByEmail(principal.getName()).getUserId();
-			VirtualWallet userWallet = virtualWalletService.withdraw(virtualWalletView.getAmount(), userId);
+
+			virtualWalletService.withdraw(virtualWalletView.getAmount(), userId);
+
+			VirtualWallet userWallet = virtualWalletService.getUserVirtualWallet(userId);
+
 			transactionService.recordWalletithdraw(virtualWalletView, userId);
-			portfolioService.updatePortfolioAmount(userWallet.getAmount(), userId);
+
+			portfolioService.updatePortfolio("USD", userWallet.getAmount(), userId);
+
 			resource.put(message, "Withdrawn from Virtual Wallet Successfully");
 			resource.put(data, userWallet);
 		} catch (CryptxException e) {
@@ -241,12 +255,29 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "currency/buy", method = RequestMethod.POST)
-	public ResponseEntity<?> buy() {
+	public ResponseEntity<?> buy(@RequestBody Map<String, TransactionRequestView> transactionRequestView,
+			Principal principal) {
 		logger.info("Requesting for buying specified currency");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
+			int userId = userService.findUserByEmail(principal.getName()).getUserId();
+			TransactionRequestView transactionRequest = transactionRequestView.get("transactionRequest");
+
+			virtualWalletService.withdraw(transactionRequest.getTransactionAmount(), userId);
+
+			transactionService.doBuy(transactionRequest, userId);
+
+			double currentCoins = portfolioService.getAmount(transactionRequest.getCurrency(), userId);
+			double newAmount = currentCoins + transactionRequest.getNumberOfCoins();
+
+			portfolioService.updatePortfolio(transactionRequest.getCurrency(), newAmount, userId);
+
 			resource.put(message, "Currency Buy Transaction Successful");
-			resource.put(data, Transaction.getDummyTransactions());
+			resource.put(data, transactionService.getUserTransaction(userId));
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Currecny Buy Request Failed Unexpectedly");
@@ -256,12 +287,32 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "currency/sell", method = RequestMethod.POST)
-	public ResponseEntity<?> sell() {
+	public ResponseEntity<?> sell(@RequestBody Map<String, TransactionRequestView> transactionRequestView,
+			Principal principal) {
 		logger.info("Requesting for selling specified currencyr");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
+			int userId = userService.findUserByEmail(principal.getName()).getUserId();
+			TransactionRequestView transactionRequest = transactionRequestView.get("transactionRequest");
+			
+			double currentCoins = portfolioService.getAmount(transactionRequest.getCurrency(), userId);
+			double newAmount = currentCoins - transactionRequest.getNumberOfCoins();
+			if(newAmount < 0) {
+				throw new CryptxException("Insufficient Coins");
+			}
+			
+			portfolioService.updatePortfolio(transactionRequest.getCurrency(), newAmount, userId);
+			
+			transactionService.doSell(transactionRequest, userId);
+			
+			virtualWalletService.deposit(transactionRequest.getTransactionAmount(), userId);
+			
 			resource.put(message, "Sell Currency Transaction Succesful");
-			resource.put(data, Transaction.getDummyTransactions());
+			resource.put(data, transactionService.getUserTransaction(userId));
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Currecny Sell Request Failed Unexpectedly");

@@ -9,7 +9,9 @@ public interface IPortfolioService {
 
 	Portfolio getUserPortfolio(int userId) throws CryptxException;
 	
-	Portfolio updatePortfolioAmount(double amount, int userId) throws CryptxException;
+	double getAmount(String cryptoCurrency, int userId) throws CryptxException;
 	
 	void createUserPortfolio(int userId) throws CryptxException;
+	
+	void updatePortfolio(String cryptoCurrency, double amount, int userId) throws CryptxException;
 }
