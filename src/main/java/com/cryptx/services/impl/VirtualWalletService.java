@@ -18,18 +18,18 @@ public class VirtualWalletService implements IVirtualWalletService {
 	IDataAccess dataAccess;
 
 	@Override
-	public VirtualWallet deposit(double amount, int userId) throws CryptxException {
+	public boolean deposit(double amount, int userId) throws CryptxException {
 
 		VirtualWallet userVirtualWallet = getUserVirtualWallet(userId);
 		if (userVirtualWallet == null) {
 			userVirtualWallet = createUserVirtualWallet(userId);
 		}
 		depositIntoVirtualWallet(amount, userVirtualWallet);
-		return getUserVirtualWallet(userId);
+		return true;
 	}
 
 	@Override
-	public VirtualWallet withdraw(double amount, int userId) throws CryptxException {
+	public boolean withdraw(double amount, int userId) throws CryptxException {
 
 		VirtualWallet userVirtualWallet = getUserVirtualWallet(userId);
 		if (userVirtualWallet == null) {
@@ -37,7 +37,7 @@ public class VirtualWalletService implements IVirtualWalletService {
 			throw new CryptxException("Insufficient Funds");
 		}
 		withdrawFromVirtualWallet(amount, userVirtualWallet);
-		return getUserVirtualWallet(userId);
+		return true;
 	}
 
 	@Override
