@@ -26,6 +26,8 @@ import com.cryptx.models.CryptxUser;
 import com.cryptx.models.PaymentMethod;
 import com.cryptx.models.Transaction;
 import com.cryptx.models.VirtualWallet;
+import com.cryptx.services.IPortfolioService;
+import com.cryptx.services.ITransactionService;
 import com.cryptx.services.IUserService;
 import com.cryptx.services.IVirtualWalletService;
 import com.cryptx.views.UserProfileView;
@@ -38,12 +40,18 @@ public class CryptxRestController {
 
 	private static final String message = "message";
 	private static final String data = "data";
-	
+
 	@Autowired
 	IUserService userService;
-	
+
 	@Autowired
 	IVirtualWalletService virtualWalletService;
+
+	@Autowired
+	ITransactionService transactionService;
+
+	@Autowired
+	IPortfolioService portfolioService;
 
 	private static final Logger logger = LoggerFactory.getLogger(CryptxRestController.class);
 
@@ -52,7 +60,7 @@ public class CryptxRestController {
 		logger.info(String.format("User Login: [%s]", principal.getName()));
 		Map<String, Object> resource = new HashMap<String, Object>();
 		//
-		//resource = getDummyUserData();
+		// resource = getDummyUserData();
 		resource.put(message, "User Login Successful");
 		resource.put(data, getDummyProfile());
 		//
@@ -163,7 +171,7 @@ public class CryptxRestController {
 	public ResponseEntity<?> getUserVirtualWalletDetails() {
 		logger.info("Requesting virtual wallet information of user");
 		Map<String, Object> resource = new HashMap<String, Object>();
-		try {	
+		try {
 			resource.put(message, "User Virtual Wallet Details");
 			resource.put(data, VirtualWallet.getDummyVirtualWalletDetails());
 		} catch (Exception e) {
@@ -183,14 +191,22 @@ public class CryptxRestController {
 	// }
 
 	@RequestMapping(value = "wallet/deposit", method = RequestMethod.POST)
-	public ResponseEntity<?> depositInVirtualWallet(@RequestBody Map<String, VirtualWalletView> walletView, Principal principal) {
+	public ResponseEntity<?> depositInVirtualWallet(@RequestBody Map<String, VirtualWalletView> walletView,
+			Principal principal) {
 		logger.info("Requesting for depositing in virtual wallet of user");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
-			CryptxUser loggedInUser = userService.findUserByEmail(principal.getName());
-			virtualWalletService.deposit(walletView.get("walletRequest"), loggedInUser.getUserId());
+			VirtualWalletView virtualWalletView = walletView.get("walletRequest");
+			int userId = userService.findUserByEmail(principal.getName()).getUserId();
+			VirtualWallet userWallet = virtualWalletService.deposit(virtualWalletView.getAmount(), userId);
+			transactionService.recordWalletDeposit(virtualWalletView, userId);
+			portfolioService.updatePortfolioAmount(userWallet.getAmount(), userId);
 			resource.put(message, "Deposited in Virtual Wallet Successfully");
 			resource.put(data, VirtualWallet.getDummyVirtualWalletDetails());
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Deposit Request Failed Unexpectedly");
@@ -200,14 +216,22 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "wallet/withdraw", method = RequestMethod.POST)
-	public ResponseEntity<?> withdrawFromVirtualWallet(@RequestBody Map<String, VirtualWalletView> walletView, Principal principal) {
+	public ResponseEntity<?> withdrawFromVirtualWallet(@RequestBody Map<String, VirtualWalletView> walletView,
+			Principal principal) {
 		logger.info("Requesting for withdrawing from virtual wallet of user");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
-			CryptxUser loggedInUser = userService.findUserByEmail(principal.getName());
-			virtualWalletService.withdraw(walletView.get("walletRequest"), loggedInUser.getUserId());
+			VirtualWalletView virtualWalletView = walletView.get("walletRequest");
+			int userId = userService.findUserByEmail(principal.getName()).getUserId();
+			VirtualWallet userWallet = virtualWalletService.withdraw(virtualWalletView.getAmount(), userId);
+			transactionService.recordWalletithdraw(virtualWalletView, userId);
+			portfolioService.updatePortfolioAmount(userWallet.getAmount(), userId);
 			resource.put(message, "Withdrawn from Virtual Wallet Successfully");
 			resource.put(data, VirtualWallet.getDummyVirtualWalletDetails());
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Withdraw Request Failed Unexpectedly");
@@ -249,13 +273,13 @@ public class CryptxRestController {
 	@RequestMapping(value = "user/profile", method = RequestMethod.GET)
 	public ResponseEntity<?> getUserProfile(Principal principal) {
 		logger.info("Retrieving user profile informations");
-		logger.info("Logged in user is: " + principal.getName() );
+		logger.info("Logged in user is: " + principal.getName());
 		Map<String, Object> resource = new HashMap<String, Object>();
-		//Map<String, Object> resource = getDummyUserData();
+		// Map<String, Object> resource = getDummyUserData();
 		try {
 			resource.put(message, "User profile details");
 			resource.put(data, getDummyProfile());
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Request for User Profile Failed Unexpectedly");
@@ -278,12 +302,12 @@ public class CryptxRestController {
 		}
 		return ResponseEntity.ok(resource);
 	}
-	
-	private Map<String, Object> getDummyUserData(){
-		
+
+	private Map<String, Object> getDummyUserData() {
+
 		Map<String, Object> resource = new HashMap<String, Object>();
-		//User Data
-		Map<String, Object> userData = new HashMap<String, Object>(); 
+		// User Data
+		Map<String, Object> userData = new HashMap<String, Object>();
 		userData.put("name", "Vineet");
 		userData.put("email", "vinzee93@gmail.com");
 		userData.put("address", "Maryland");
@@ -291,80 +315,80 @@ public class CryptxRestController {
 		userData.put("country", "United States");
 		userData.put("postalCode", "21227");
 		resource.put("user", userData);
-		
-		//Wallet Data
+
+		// Wallet Data
 		Map<String, Object> walletData = new HashMap<String, Object>();
 		walletData.put("balance", 123);
 		resource.put("virtualWallet", walletData);
-		
-		//Bank Data
+
+		// Bank Data
 		Map<String, Object> paymentMathodOne = new HashMap<String, Object>();
 		paymentMathodOne.put("id", "1");
 		paymentMathodOne.put("name", "Bank of America");
 		paymentMathodOne.put("account_number", "1234");
 		paymentMathodOne.put("type", "credit");
-		
+
 		Map<String, Object> paymentMethodTwo = new HashMap<String, Object>();
 		paymentMethodTwo.put("id", "2");
 		paymentMethodTwo.put("name", "PNC");
 		paymentMethodTwo.put("account_number", "6789");
 		paymentMethodTwo.put("type", "debit");
-		
-		List<Map<String, Object>> paymentMethodss = new ArrayList<Map<String,Object>>();
+
+		List<Map<String, Object>> paymentMethodss = new ArrayList<Map<String, Object>>();
 		paymentMethodss.add(paymentMathodOne);
 		paymentMethodss.add(paymentMethodTwo);
 		resource.put("paymentMethods", paymentMethodss);
-		
-		//Investment Data
+
+		// Investment Data
 		Map<String, Object> investOne = new HashMap<String, Object>();
 		investOne.put("currency", "Bitcoin");
 		investOne.put("amount", 0.4);
-		
+
 		Map<String, Object> investTwo = new HashMap<String, Object>();
 		investTwo.put("currency", "Litecoin");
 		investTwo.put("amount", 2.3);
-		
+
 		Map<String, Object> investThree = new HashMap<String, Object>();
 		investThree.put("currency", "Ethereum");
 		investThree.put("amount", 3.5);
-		
+
 		Map<String, Object> investFour = new HashMap<String, Object>();
 		investFour.put("currency", "Ripple");
 		investFour.put("amount", 0);
-		
-		List<Map<String, Object>> investments = new ArrayList<Map<String,Object>>();
+
+		List<Map<String, Object>> investments = new ArrayList<Map<String, Object>>();
 		investments.add(investOne);
 		investments.add(investTwo);
 		investments.add(investThree);
 		investments.add(investFour);
 		resource.put("investments", investments);
-		
-		//Transaction Data
+
+		// Transaction Data
 		Map<String, Object> transOne = new HashMap<String, Object>();
 		transOne.put("type", "Buy");
 		transOne.put("currency", "Bitcoin");
 		transOne.put("amount", "$36.738");
 		transOne.put("date", 1510930059);
-		
+
 		Map<String, Object> transTwo = new HashMap<String, Object>();
 		transTwo.put("type", "Buy");
 		transTwo.put("currency", "Bitcoin");
 		transTwo.put("amount", "$36.738");
 		transTwo.put("date", 1510930059);
-		
+
 		Map<String, Object> transThree = new HashMap<String, Object>();
 		transThree.put("type", "Buy");
 		transThree.put("currency", "Bitcoin");
 		transThree.put("amount", "$36.738");
 		transThree.put("date", 1510930059);
-		
+
 		Map<String, Object> transFour = new HashMap<String, Object>();
 		transFour.put("type", "Buy");
 		transFour.put("currency", "Bitcoin");
 		transFour.put("amount", "$36.738");
 		transFour.put("date", 1510930059);
-		
-		List<Map<String, Object>> transactions = new ArrayList<Map<String,Object>>();
+
+		List<Map<String, Object>> transactions = new ArrayList<Map<String, Object>>();
 		transactions.add(transOne);
 		transactions.add(transTwo);
 		transactions.add(transThree);
@@ -372,9 +396,9 @@ public class CryptxRestController {
 		resource.put("transactions", transactions);
 		return resource;
 	}
-	
+
 	private UserProfileView getDummyProfile() {
 		return UserProfileView.getDummyUserProfile();
 	}
-	
+
 }

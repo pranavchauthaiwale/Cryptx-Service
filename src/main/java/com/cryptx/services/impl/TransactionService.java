@@ -23,18 +23,33 @@ public class TransactionService implements ITransactionService {
 	IDataAccess dataAccess;
 	
 	@Override
-	public void addWalletTransactio(VirtualWalletView virtualWalletView, int userId) throws CryptxException {
+	public void recordWalletDeposit(VirtualWalletView virtualWalletView, int userId) throws CryptxException {
 		Date date = new Date();
 		String query = String.format("INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %d, %d, %ts )",
-				virtualWalletView.getPortfolioId(), userId, "WalletTransaction", "USD", 
+				virtualWalletView.getPortfolioId(), userId, "Deposit", "USD", 
+				virtualWalletView.getAmount(), virtualWalletView.getAmount(), date);
+		try {
+			dataAccess.executeQuery(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("Error in Wallet Deposit Transaction");
+		}
+	}
+	
+	@Override
+	public void recordWalletithdraw(VirtualWalletView virtualWalletView, int userId) throws CryptxException {
+		Date date = new Date();
+		String query = String.format("INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %d, %d, %ts )",
+				virtualWalletView.getPortfolioId(), userId, "Withdraw", "USD", 
 				virtualWalletView.getAmount(), virtualWalletView.getAmount(), date);
 		try {
 			dataAccess.executeQuery(query);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new CryptxException("Error in Updating Transaction");
-		}
+		}		
 	}
+
 
 	@Override
 	public List<Transaction> getUserTransaction(int userId) throws CryptxException {
@@ -87,4 +102,5 @@ public class TransactionService implements ITransactionService {
 		return userTransactionList;
 	}
 
+	
 }

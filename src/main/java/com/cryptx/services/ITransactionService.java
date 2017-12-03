@@ -11,7 +11,9 @@ public interface ITransactionService {
 
 	public static final String TRANSACTION_SERVICE = "TransactionService";
 
-	void addWalletTransactio(VirtualWalletView userVirtualWallet, int userId) throws CryptxException;
+	void recordWalletDeposit(VirtualWalletView userVirtualWallet, int userId) throws CryptxException;
+	
+	void recordWalletithdraw(VirtualWalletView userVirtualWallet, int userId) throws CryptxException;
 
 	void doSell(TransactionRequestView transactionRequestView) throws CryptxException;
 

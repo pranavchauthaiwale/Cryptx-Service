@@ -7,7 +7,7 @@ public class Portfolio {
 	private double bitcoin;
 	private double litecoin;
 	private double ethereum;
-	private double walletBalance;
+	private double amount;
 
 	public int getPortfolioId() {
 		return portfolioId;
@@ -49,21 +49,22 @@ public class Portfolio {
 		this.ethereum = ethereum;
 	}
 
-	public double getWalletBalance() {
-		return walletBalance;
+	public double getAmount() {
+		return amount;
 	}
 
-	public void setWalletBalance(double walletBalance) {
-		this.walletBalance = walletBalance;
+	public void setAmount(double amount) {
+		this.amount = amount;
 	}
-	
+
 	public static Portfolio getDummyPortfolio() {
 		Portfolio dummyuserPortfolio = new Portfolio();
 		dummyuserPortfolio.setPortfolioId(1);
-		dummyuserPortfolio.setUserId(1);;
+		dummyuserPortfolio.setUserId(1);
 		dummyuserPortfolio.setBitcoin(0.4);
 		dummyuserPortfolio.setLitecoin(2.3);
 		dummyuserPortfolio.setEthereum(3.5);
+		dummyuserPortfolio.setAmount(999);
 		return dummyuserPortfolio;
 	}
 
