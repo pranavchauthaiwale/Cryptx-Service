@@ -15,7 +15,7 @@ import com.cryptx.services.IUserService;
 
 @Service(IUserService.USER_SERVICE)
 public class UserService implements IUserService {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
@@ -33,6 +33,60 @@ public class UserService implements IUserService {
 			e.printStackTrace();
 			throw new CryptxException("Error in creating new user");
 		}
+	}
+
+	@Override
+	public CryptxUser updateUserDetails(CryptxUser updatedUser, String userEmail) throws CryptxException {
+
+		if (!updatedUser.getEmail().equalsIgnoreCase(userEmail)) {
+			throw new CryptxException("Email cannot be modified");
+		}
+		
+		CryptxUser currentUser = findUserByEmail(userEmail);
+		String query = String.format(
+				"UPDATE user SET name = '%s', ssn = '%s', phone = '%s', address = '%s', city = '%s', country = '%s', postalcode = '%s' WHERE userid = %d",
+				updatedUser.getName(), updatedUser.getSsn(), updatedUser.getPhone(), updatedUser.getAddress(),
+				updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), currentUser.getUserId());
+		
+		try {
+			dataAccess.executeQuery(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("Error in creating new user");
+		}
+		currentUser = findUserByEmail(userEmail);
+		return currentUser;
+	}
+
+	@Override
+	public CryptxUser findUserAuthDetailsByEmail(String email) throws CryptxException {
+		String query = String.format("Select email, password FROM user where email='%s'", email);
+
+		ResultSet rs;
+		try {
+			rs = dataAccess.executeQuery(query);
+			if (!rs.isBeforeFirst()) {
+				throw new CryptxException("Resultset Empty");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("SQL Exception. Error: " + e.getMessage());
+		}
+		return buildUserAuthObject(rs);
+	}
+
+	private CryptxUser buildUserAuthObject(ResultSet resultSet) throws CryptxException {
+		CryptxUser user = new CryptxUser();
+		try {
+			while (resultSet.next()) {
+				user.setEmail(resultSet.getString("email"));
+				user.setPassword(resultSet.getString("password"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("SQL Exception. Error: " + e.getMessage());
+		}
+		return user;
 	}
 
 	@Override
@@ -61,7 +115,6 @@ public class UserService implements IUserService {
 				user.setName(resultSet.getString("name"));
 				user.setEmail(resultSet.getString("email"));
 				user.setPhone(resultSet.getString("phone"));
-				user.setPassword(resultSet.getString("password"));
 				user.setSsn(resultSet.getString("ssn"));
 				user.setAddress(resultSet.getString("address"));
 				user.setCity(resultSet.getString("city"));

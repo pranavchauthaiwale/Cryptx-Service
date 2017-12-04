@@ -30,7 +30,7 @@ public class UserAuthService implements UserDetailsService {
 		
 		CryptxUser user;
 		try {
-			user = userServie.findUserByEmail(email);
+			user = userServie.findUserAuthDetailsByEmail(email);
 		} catch (CryptxException e) {
 			logger.info("Exception in loading user by email: " + email);
 			logger.error("Error message: " + e.getMessage());

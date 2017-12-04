@@ -6,6 +6,7 @@ import com.cryptx.models.CardDetails;
 import com.cryptx.models.CryptxUser;
 import com.cryptx.models.Investment;
 import com.cryptx.models.PaymentMethod;
+import com.cryptx.models.Portfolio;
 import com.cryptx.models.Transaction;
 import com.cryptx.models.VirtualWallet;
 
@@ -13,9 +14,8 @@ public class UserProfileView {
 
 	private CryptxUser user;
 	private VirtualWallet virtualWallet;
-	private CardDetails cardDetails;
 	private List<PaymentMethod> paymentMethods;
-	private List<Investment> investments;
+	private Portfolio portfolio;
 	private List<Transaction> transactions;
 
 	public CryptxUser getUser() {
@@ -34,28 +34,12 @@ public class UserProfileView {
 		this.virtualWallet = virtualWallet;
 	}
 
-	public CardDetails getCardDetails() {
-		return cardDetails;
-	}
-
-	public void setCardDetails(CardDetails cardDetails) {
-		this.cardDetails = cardDetails;
-	}
-
 	public List<PaymentMethod> getPaymentMethods() {
 		return paymentMethods;
 	}
 
 	public void setPaymentMethods(List<PaymentMethod> paymentMethods) {
 		this.paymentMethods = paymentMethods;
-	}
-
-	public List<Investment> getInvestments() {
-		return investments;
-	}
-
-	public void setInvestments(List<Investment> investments) {
-		this.investments = investments;
 	}
 
 	public List<Transaction> getTransactions() {
@@ -66,14 +50,21 @@ public class UserProfileView {
 		this.transactions = transactions;
 	}
 
-	public static UserProfileView getDummyUserProfile() {
-		UserProfileView user = new UserProfileView();
-		user.setUser(CryptxUser.getDummyUserData());
-		user.setVirtualWallet(VirtualWallet.getDummyVirtualWalletDetails());
-		user.setCardDetails(CardDetails.getDummyCardDetails());
-		user.setPaymentMethods(PaymentMethod.getDummyPaymentMethodsList());
-		user.setInvestments(Investment.getDummyInvestments());
-		user.setTransactions(Transaction.getDummyTransactions());
-		return user;
+	public Portfolio getPortfolio() {
+		return portfolio;
 	}
+
+	public void setPortfolio(Portfolio portfolio) {
+		this.portfolio = portfolio;
+	}
+
+//	public static UserProfileView getDummyUserProfile() {
+//		UserProfileView user = new UserProfileView();
+//		user.setUser(CryptxUser.getDummyUserData());
+//		user.setVirtualWallet(VirtualWallet.getDummyVirtualWalletDetails());
+//		user.setPaymentMethods(PaymentMethod.getDummyPaymentMethodsList());
+//		user.setTransactions(Transaction.getDummyTransactions());
+//		user.setPortfolio(Portfolio.getDummyPortfolio());
+//		return user;
+//	}
 }

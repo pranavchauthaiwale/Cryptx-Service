@@ -1,16 +1,16 @@
 package com.cryptx.views;
 
 public class VirtualWalletView {
-	private int paymentMethodId;
+	private int cardId;
 	private int portfolioId;
 	private double amount;
 
 	public int getPaymentMethodId() {
-		return paymentMethodId;
+		return cardId;
 	}
 
 	public void setPaymentMethodId(int paymentMethodId) {
-		this.paymentMethodId = paymentMethodId;
+		this.cardId = paymentMethodId;
 	}
 
 	public int getPortfolioId() {

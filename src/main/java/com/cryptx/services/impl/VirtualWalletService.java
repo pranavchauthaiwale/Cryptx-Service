@@ -131,7 +131,7 @@ public class VirtualWalletService implements IVirtualWalletService {
 		}
 	}
 
-	private VirtualWallet createUserVirtualWallet(int userId) throws CryptxException {
+	public VirtualWallet createUserVirtualWallet(int userId) throws CryptxException {
 		String query = String.format("INSERT INTO WALLET (userid, amount) VALUES (%d, 0)", userId);
 
 		try {

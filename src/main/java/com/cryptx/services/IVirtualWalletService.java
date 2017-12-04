@@ -12,4 +12,6 @@ public interface IVirtualWalletService {
 	boolean withdraw(double amount, int userId) throws CryptxException;
 
 	VirtualWallet getUserVirtualWallet(int userId) throws CryptxException;
+	
+	VirtualWallet createUserVirtualWallet(int userId) throws CryptxException;
 }

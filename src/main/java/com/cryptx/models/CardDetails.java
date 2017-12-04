@@ -68,7 +68,7 @@ public class CardDetails {
 	public static CardDetails getDummyCardDetails() {
 		CardDetails dummyCard = new CardDetails();
 		dummyCard.setCardDetailsId(1);
-		dummyCard.setUserId(1);
+		dummyCard.setUserId(2);
 		dummyCard.setCardNo(4457889622123656L);
 		dummyCard.setExpiry("10/19");
 		dummyCard.setCVV(125);

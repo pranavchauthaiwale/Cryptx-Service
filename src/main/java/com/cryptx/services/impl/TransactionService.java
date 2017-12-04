@@ -26,7 +26,7 @@ public class TransactionService implements ITransactionService {
 	public void recordWalletDeposit(VirtualWalletView virtualWalletView, int userId) throws CryptxException {
 		Date date = new Date();
 		String query = String.format(
-				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %f, %f, %ts )",
+				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, '%s', '%s', %f, %f, %ts )",
 				virtualWalletView.getPortfolioId(), userId, "Deposit", "USD", virtualWalletView.getAmount(),
 				virtualWalletView.getAmount(), date);
 		try {
@@ -41,7 +41,7 @@ public class TransactionService implements ITransactionService {
 	public void recordWalletithdraw(VirtualWalletView virtualWalletView, int userId) throws CryptxException {
 		Date date = new Date();
 		String query = String.format(
-				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %f, %f, %ts )",
+				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, '%s', '%s', %f, %f, %ts )",
 				virtualWalletView.getPortfolioId(), userId, "Withdraw", "USD", virtualWalletView.getAmount(),
 				virtualWalletView.getAmount(), date);
 		try {
@@ -55,7 +55,7 @@ public class TransactionService implements ITransactionService {
 	@Override
 	public List<Transaction> getUserTransaction(int userId) throws CryptxException {
 		String query = String.format(
-				"SELECT transactionid, portfolioid, type, transtime FROM usertransaction where userid = %d", userId);
+				"SELECT userid, transactionid, portfolioid, type, currency, numberofcoins, transactionamount, transactiontime FROM usertransaction where userId = %d", userId);
 		ResultSet rs;
 		try {
 			rs = dataAccess.executeQuery(query);
@@ -73,8 +73,8 @@ public class TransactionService implements ITransactionService {
 	@Override
 	public void doSell(TransactionRequestView transactionRequest, int userId) throws CryptxException {
 		String query = String.format(
-				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %f, %f, %f)",
-				transactionRequest.getPortfolioId(), userId, transactionRequest.getType(),
+				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, '%s', '%s', %f, %f, %f)",
+				transactionRequest.getPortfolioId(), userId, "SELL",
 				transactionRequest.getCurrency(), transactionRequest.getNumberOfCoins(),
 				transactionRequest.getTransactionAmount(), transactionRequest.getTransactionTime());
 		try {
@@ -88,8 +88,8 @@ public class TransactionService implements ITransactionService {
 	@Override
 	public void doBuy(TransactionRequestView transactionRequest, int userId) throws CryptxException {
 		String query = String.format(
-				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, %s, %s, %f, %f, %f)",
-				transactionRequest.getPortfolioId(), userId, transactionRequest.getType(),
+				"INSERT INTO usertransaction ( portfolioid, userid, type, currency, numberofcoins, transactionamount, transactiontime ) VALUES ( %d, %d, '%s', '%s', %f, %f, %f)",
+				transactionRequest.getPortfolioId(), userId, "BUY",
 				transactionRequest.getCurrency(), transactionRequest.getNumberOfCoins(),
 				transactionRequest.getTransactionAmount(), transactionRequest.getTransactionTime());
 		try {
@@ -112,7 +112,7 @@ public class TransactionService implements ITransactionService {
 				userTransaction.setType(resultSet.getString("type"));
 				userTransaction.setCurrency(resultSet.getString("currency"));
 				userTransaction.setNumberOfCoins(resultSet.getDouble("numberofcoins"));
-				userTransaction.setTransactionAmount(resultSet.getDouble("transacationamount"));
+				userTransaction.setTransactionAmount(resultSet.getDouble("transactionamount"));
 				userTransaction.setTransactionTime(resultSet.getBigDecimal("transactiontime").longValue());
 				userTransactionList.add(userTransaction);
 			}

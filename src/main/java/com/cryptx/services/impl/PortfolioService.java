@@ -28,7 +28,8 @@ public class PortfolioService implements IPortfolioService {
 		try {
 			rs = dataAccess.executeQuery(query);
 			if (!rs.isBeforeFirst()) {
-				return null;
+				createUserPortfolio(userId);
+				return getUserPortfolio(userId);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -112,7 +113,7 @@ public class PortfolioService implements IPortfolioService {
 			updateString = String.format("amount = %f", amount);
 		}
 
-		String query = String.format("UPDATE portfolio SET %s WHERE portfolioid = %f", updateString, amount);
+		String query = String.format("UPDATE portfolio SET %s WHERE portfolioid = %d", updateString, userPortfolio.getPortfolioId());
 
 		try {
 			dataAccess.executeQuery(query);

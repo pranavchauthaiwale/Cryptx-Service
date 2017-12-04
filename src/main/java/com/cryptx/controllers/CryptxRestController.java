@@ -22,15 +22,20 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cryptx.exception.CryptxException;
+import com.cryptx.exception.EmptyDataException;
 import com.cryptx.models.CryptxUser;
+import com.cryptx.models.EmptyResponse;
 import com.cryptx.models.PaymentMethod;
 import com.cryptx.models.Portfolio;
 import com.cryptx.models.Transaction;
 import com.cryptx.models.VirtualWallet;
+import com.cryptx.services.IHistoricTrendsService;
+import com.cryptx.services.IPaymentMethodService;
 import com.cryptx.services.IPortfolioService;
 import com.cryptx.services.ITransactionService;
 import com.cryptx.services.IUserService;
 import com.cryptx.services.IVirtualWalletService;
+import com.cryptx.views.PaymentMethodView;
 import com.cryptx.views.TransactionRequestView;
 import com.cryptx.views.UserProfileView;
 import com.cryptx.views.VirtualWalletView;
@@ -55,17 +60,33 @@ public class CryptxRestController {
 	@Autowired
 	IPortfolioService portfolioService;
 
+	@Autowired
+	IPaymentMethodService paymentMethodService;
+
+	@Autowired
+	IHistoricTrendsService historicTrendsService;
+
 	private static final Logger logger = LoggerFactory.getLogger(CryptxRestController.class);
+
+	private final static EmptyResponse EMPTY_RESPONSE = new EmptyResponse();
 
 	@RequestMapping(value = "login", method = RequestMethod.POST)
 	public ResponseEntity<?> loginUser(Principal principal) {
-		logger.info(String.format("User Login: [%s]", principal.getName()));
+		String userName = principal.getName();
+		logger.info(String.format("User Login: [%s]", userName));
 		Map<String, Object> resource = new HashMap<String, Object>();
-		//
-		// resource = getDummyUserData();
 		resource.put(message, "User Login Successful");
-		resource.put(data, getDummyProfile());
-		//
+		try {
+			resource.put(data, getUserProfileView(userName));
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put(message, "User Login Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
 		return ResponseEntity.ok(resource);
 	}
 
@@ -81,8 +102,15 @@ public class CryptxRestController {
 		logger.info("Registering new user in cryptx");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
+			CryptxUser newUser = userView.get("user");
 			resource.put(message, "User Created Successfully");
-			userService.createNewUser(userView.get("user"));
+			userService.createNewUser(newUser);
+
+			newUser = userService.findUserByEmail(newUser.getEmail());
+
+			virtualWalletService.createUserVirtualWallet(newUser.getUserId());
+
+			portfolioService.createUserPortfolio(newUser.getUserId());
 		} catch (CryptxException e) {
 			e.printStackTrace();
 			resource.put(message, e.getMessage());
@@ -95,13 +123,65 @@ public class CryptxRestController {
 		return ResponseEntity.ok(resource);
 	}
 
+	@RequestMapping(value = "user/profile", method = RequestMethod.GET)
+	public ResponseEntity<?> getUserProfile(Principal principal) {
+		String userName = principal.getName();
+		logger.info(String.format("User Profile Request: [%s]", userName));
+		logger.info("Retrieving user profile informations");
+		logger.info("Logged in user is: " + principal.getName());
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put(message, "User profile details");
+			resource.put(data, getUserProfileView(userName));
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put(message, "User Profile Request Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
+	}
+
+	@RequestMapping(value = "user/update", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateUserProfile(@RequestBody Map<String, CryptxUser> userView, Principal principal) {
+		String userName = principal.getName();
+		logger.info("Updating user profile informations of user [%s]", userName);
+
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			resource.put(data, userService.updateUserDetails(userView.get("user"), userName));
+			resource.put(message, "User Profile Updated Successfully");
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, e.getMessage());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resource);
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put(message, "Request for Updating User Profile Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
+	}
+
 	@RequestMapping(value = "user/payment_details", method = RequestMethod.GET)
-	public ResponseEntity<?> getPaymentDetails() {
+	public ResponseEntity<?> getPaymentDetails(Principal principal) {
 		logger.info("Request for bank details of user");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
+			int userId = userService.findUserByEmail(principal.getName()).getUserId();
 			resource.put(message, "User Payment Details");
-			resource.put(data, PaymentMethod.getDummyPaymentMethodsList());
+			resource.put(data, paymentMethodService.getUserPaymentMethodList(userId));
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, "No User Payment Methods Found");
+			resource.put(data, EMPTY_RESPONSE);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		} catch (EmptyDataException e) {
+			resource.put(message, "No Payment Methods Found");
+			resource.put(data, EMPTY_RESPONSE);
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Payment Details Request Failed Unexpectedly");
@@ -111,12 +191,25 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "payment_method/create", method = RequestMethod.POST)
-	public ResponseEntity<?> addPaymentDetails() {
+	public ResponseEntity<?> addPaymentDetails(@RequestBody Map<String, PaymentMethodView> paymentMethodView,
+			Principal principal) {
 		logger.info("Request for adding bank details for user");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
+			int userId = userService.findUserByEmail(principal.getName()).getUserId();
+			PaymentMethodView paymentMethod = paymentMethodView.get("paymentMethod");
+			List<PaymentMethod> userPaymentMethods = paymentMethodService.createUserPaymentMethod(paymentMethod,
+					userId);
 			resource.put(message, "Bank Details Added Successfully");
-			resource.put(data, PaymentMethod.getDummyPaymentMethodsList());
+			resource.put(data, userPaymentMethods);
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, "Error in Adding Payment Method");
+			resource.put(data, EMPTY_RESPONSE);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		} catch (EmptyDataException e) {
+			resource.put(message, "No Payment Methods Found");
+			resource.put(data, EMPTY_RESPONSE);
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Add Bank Details Request Failed Unexpectedly");
@@ -126,12 +219,20 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "payment_method/{paymentMethodId}/update", method = RequestMethod.PUT)
-	public ResponseEntity<?> updatePaymentDetails(@PathVariable int paymentMethodId) {
+	public ResponseEntity<?> updatePaymentDetails(@PathVariable int paymentMethodId,
+			@RequestBody Map<String, PaymentMethodView> paymentMethodView, Principal principal) {
 		logger.info("Requesting for updating bank details of user");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
+			int userId = userService.findUserByEmail(principal.getName()).getUserId();
+			PaymentMethodView paymentMethod = paymentMethodView.get("paymentMethod");
 			resource.put(message, "Payment Details Updated Successfully");
-			resource.put(data, PaymentMethod.getDummyPaymentMethodsList());
+			resource.put(data, paymentMethodService.updatePaymentMethodDetails(paymentMethod, paymentMethodId, userId));
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, "Error in Updating Payment Method");
+			resource.put(data, EMPTY_RESPONSE);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Update Payment Details Request Failed Unexpectedly");
@@ -141,29 +242,72 @@ public class CryptxRestController {
 	}
 
 	@RequestMapping(value = "payment_method/{paymentMethodId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deletePaymentDetails(@PathVariable int paymentMethodId) {
+	public ResponseEntity<?> deletePaymentDetails(@PathVariable int paymentMethodId, Principal principal) {
 		logger.info("Deleting bank details of user");
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
+			int userId = userService.findUserByEmail(principal.getName()).getUserId();
 			resource.put(message, "Payment Details Deleted Successfully");
-			resource.put(data, PaymentMethod.getDummyPaymentMethodsList());
+			resource.put(data, paymentMethodService.deleteUserPaymnetMethod(paymentMethodId, userId));
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, "Error Deleting Method");
+			resource.put(data, EMPTY_RESPONSE);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		} catch (EmptyDataException e) {
+			resource.put(message, "No Payment Methods Found");
+			resource.put(data, EMPTY_RESPONSE);
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Delete Payment Details Request Failed Unexpectedly");
+			resource.put(data, EMPTY_RESPONSE);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		}
 		return ResponseEntity.ok(resource);
 	}
 
-	@RequestMapping(value = "currencyhistory/{currency}", method = RequestMethod.GET)
-	public ResponseEntity<?> getCurrencyHistory(@PathVariable String currency) {
-		logger.info(String.format("Requesting historic data of currency [%s]", currency));
+	@RequestMapping(value = "currencyhistory", method = RequestMethod.GET)
+	public ResponseEntity<?> getCurrencyHistory() {
+		logger.info(String.format("Requesting historic data of Crypto-Curriencies"));
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
 			resource.put(message, "Historic Currency Details");
+			resource.put("bitcoin", historicTrendsService.getBitcoinHistoricTrends());
+			resource.put("litecoin", historicTrendsService.getLitecoinHistoricTrends());
+			resource.put("ethereum", historicTrendsService.getEthereumHistoricTrends());
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, "Error Deleting Method");
+			resource.put(data, EMPTY_RESPONSE);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Request Historical Currency Trends Failed Unexpectedly");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
+		}
+		return ResponseEntity.ok(resource);
+	}
+
+	@RequestMapping(value = "portfoliohistory", method = RequestMethod.GET)
+	public ResponseEntity<?> getPortfolioHistory() {
+		logger.info(String.format("Requesting historic data of User Portfolio"));
+		Map<String, Object> resource = new HashMap<String, Object>();
+		try {
+			List<Double[]> responseArray = new ArrayList<Double[]>();
+			Double[] arr1 = new Double[2];
+			arr1[0] = 44587789224D;
+			arr1[1] = 6.6;
+
+			Double[] arr2 = new Double[2];
+			arr2[0] = 1154877598D;
+			arr2[1] = 18.6;
+			responseArray.add(arr1);
+			responseArray.add(arr2);
+			resource.put(message, "Historic trends of User Portfolio");
+			resource.put(data, responseArray);
+		} catch (Exception e) {
+			e.printStackTrace();
+			resource.put(message, "Request Historical Portfolio Trends Failed Unexpectedly");
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		}
 		return ResponseEntity.ok(resource);
@@ -210,7 +354,14 @@ public class CryptxRestController {
 			portfolioService.updatePortfolio("USD", userWallet.getAmount(), userId);
 
 			resource.put(message, "Deposited in Virtual Wallet Successfully");
-			resource.put(data, userWallet);
+			// List<Object> list = new ArrayList<Object>()
+			// list.add(userWallet);
+			// list.add(transactionService.getUserTransaction(userId));
+
+			Map<String, Object> responseMap = new HashMap<String, Object>();
+			responseMap.put("virtualWallet", userWallet);
+			responseMap.put("transactions", transactionService.getUserTransaction(userId));
+			resource.put(data, responseMap);
 		} catch (CryptxException e) {
 			e.printStackTrace();
 			resource.put(message, e.getMessage());
@@ -241,7 +392,10 @@ public class CryptxRestController {
 			portfolioService.updatePortfolio("USD", userWallet.getAmount(), userId);
 
 			resource.put(message, "Withdrawn from Virtual Wallet Successfully");
-			resource.put(data, userWallet);
+			Map<String, Object> responseMap = new HashMap<String, Object>();
+			responseMap.put("virtualWallet", userWallet);
+			responseMap.put("transactions", transactionService.getUserTransaction(userId));
+			resource.put(data, responseMap);
 		} catch (CryptxException e) {
 			e.printStackTrace();
 			resource.put(message, e.getMessage());
@@ -272,8 +426,14 @@ public class CryptxRestController {
 
 			portfolioService.updatePortfolio(transactionRequest.getCurrency(), newAmount, userId);
 
+			VirtualWallet userWallet = virtualWalletService.getUserVirtualWallet(userId);
+
+			Map<String, Object> responseMap = new HashMap<String, Object>();
+			responseMap.put("virtualWallet", userWallet);
+			responseMap.put("transactions", transactionService.getUserTransaction(userId));
+			responseMap.put("portfolio", portfolioService.getUserPortfolio(userId));
 			resource.put(message, "Currency Buy Transaction Successful");
-			resource.put(data, transactionService.getUserTransaction(userId));
+			resource.put(data, responseMap);
 		} catch (CryptxException e) {
 			e.printStackTrace();
 			resource.put(message, e.getMessage());
@@ -294,21 +454,27 @@ public class CryptxRestController {
 		try {
 			int userId = userService.findUserByEmail(principal.getName()).getUserId();
 			TransactionRequestView transactionRequest = transactionRequestView.get("transactionRequest");
-			
+
 			double currentCoins = portfolioService.getAmount(transactionRequest.getCurrency(), userId);
 			double newAmount = currentCoins - transactionRequest.getNumberOfCoins();
-			if(newAmount < 0) {
+			if (newAmount < 0) {
 				throw new CryptxException("Insufficient Coins");
 			}
-			
+
 			portfolioService.updatePortfolio(transactionRequest.getCurrency(), newAmount, userId);
-			
+
 			transactionService.doSell(transactionRequest, userId);
-			
+
 			virtualWalletService.deposit(transactionRequest.getTransactionAmount(), userId);
-			
-			resource.put(message, "Sell Currency Transaction Succesful");
-			resource.put(data, transactionService.getUserTransaction(userId));
+
+			VirtualWallet userWallet = virtualWalletService.getUserVirtualWallet(userId);
+
+			Map<String, Object> responseMap = new HashMap<String, Object>();
+			responseMap.put("virtualWallet", userWallet);
+			responseMap.put("transactions", transactionService.getUserTransaction(userId));
+			responseMap.put("portfolio", portfolioService.getUserPortfolio(userId));
+			resource.put(message, "Currency Sell Transaction Successful");
+			resource.put(data, responseMap);
 		} catch (CryptxException e) {
 			e.printStackTrace();
 			resource.put(message, e.getMessage());
@@ -316,39 +482,6 @@ public class CryptxRestController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Currecny Sell Request Failed Unexpectedly");
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
-		}
-		return ResponseEntity.ok(resource);
-	}
-
-	@RequestMapping(value = "user/profile", method = RequestMethod.GET)
-	public ResponseEntity<?> getUserProfile(Principal principal) {
-		logger.info("Retrieving user profile informations");
-		logger.info("Logged in user is: " + principal.getName());
-		Map<String, Object> resource = new HashMap<String, Object>();
-		// Map<String, Object> resource = getDummyUserData();
-		try {
-			resource.put(message, "User profile details");
-			resource.put(data, getDummyProfile());
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			resource.put(message, "Request for User Profile Failed Unexpectedly");
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
-		}
-		return ResponseEntity.ok(resource);
-	}
-
-	@RequestMapping(value = "user/update", method = RequestMethod.PUT)
-	public ResponseEntity<?> updateUserProfile() {
-		logger.info("Updating user profile informations");
-		Map<String, Object> resource = new HashMap<String, Object>();
-		try {
-			resource.put(message, "User Profile Updated Successfully");
-			resource.put(data, getDummyProfile());
-		} catch (Exception e) {
-			e.printStackTrace();
-			resource.put(message, "Request for Updating User Profile Failed Unexpectedly");
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		}
 		return ResponseEntity.ok(resource);
@@ -448,8 +581,41 @@ public class CryptxRestController {
 		return resource;
 	}
 
-	private UserProfileView getDummyProfile() {
-		return UserProfileView.getDummyUserProfile();
+	// private UserProfileView getDummyProfile() {
+	// return UserProfileView.getDummyUserProfile();
+	// }
+
+	public UserProfileView getUserProfileView(String email) throws CryptxException {
+		UserProfileView userProfile = new UserProfileView();
+
+		CryptxUser user = userService.findUserByEmail(email);
+		int userId = user.getUserId();
+
+		userProfile.setUser(user);
+		try {
+			userProfile.setTransactions(transactionService.getUserTransaction(userId));
+		} catch (CryptxException e) {
+			userProfile.setTransactions(new ArrayList<Transaction>());
+		}
+		try {
+			userProfile.setVirtualWallet(virtualWalletService.getUserVirtualWallet(userId));
+		} catch (CryptxException e) {
+			userProfile.setVirtualWallet(new VirtualWallet());
+		}
+		try {
+			userProfile.setPortfolio(portfolioService.getUserPortfolio(userId));
+		} catch (CryptxException e) {
+			userProfile.setPortfolio(new Portfolio());
+		}
+		// userProfile.setInvestments(investments);
+		// userProfile.setCardDetails(cardDetails);
+		try {
+			userProfile.setPaymentMethods(paymentMethodService.getUserPaymentMethodList(userId));
+		} catch (Exception e) {
+			userProfile.setPaymentMethods(null);
+		}
+
+		return userProfile;
 	}
 
 }

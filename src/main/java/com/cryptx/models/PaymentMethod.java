@@ -4,27 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentMethod {
-	private int paymentMethodId;
-	private int userid;
+	private int cardId;
+	private int userId;
 	private String nickName;
-	private long accountNo;
-	private long routingNo;
-	private String accountUserName;
+	private String cardName;
+	private String cardNumber;
+	private String cardexpirydate;
+	private String cvv;
 
-	public int getPaymentMethodId() {
-		return paymentMethodId;
+	public int getCardid() {
+		return cardId;
 	}
 
-	public void setPaymentMethodId(int paymentMethodId) {
-		this.paymentMethodId = paymentMethodId;
+	public void setCardid(int cardId) {
+		this.cardId = cardId;
 	}
 
 	public int getUserid() {
-		return userid;
+		return userId;
 	}
 
-	public void setUserid(int userid) {
-		this.userid = userid;
+	public void setUserid(int userId) {
+		this.userId = userId;
 	}
 
 	public String getNickName() {
@@ -35,47 +36,65 @@ public class PaymentMethod {
 		this.nickName = nickName;
 	}
 
-	public long getAccountNo() {
-		return accountNo;
+	public String getCardexpirydate() {
+		return cardexpirydate;
 	}
 
-	public void setAccountNo(long accountNo) {
-		this.accountNo = accountNo;
+	public void setCardexpirydate(String cardexpirydate) {
+		this.cardexpirydate = cardexpirydate;
 	}
 
-	public long getRoutingNo() {
-		return routingNo;
+	public int getUserId() {
+		return userId;
 	}
 
-	public void setRoutingNo(long routingNo) {
-		this.routingNo = routingNo;
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 
-	public String getAccountUserName() {
-		return accountUserName;
+	public String getCardName() {
+		return cardName;
 	}
 
-	public void setAccountUserName(String accountUserName) {
-		this.accountUserName = accountUserName;
+	public void setCardName(String cardName) {
+		this.cardName = cardName;
+	}
+
+	public String getCardNumber() {
+		return cardNumber;
+	}
+
+	public void setCardNumber(String cardNumber) {
+		this.cardNumber = cardNumber;
+	}
+
+	public String getCvv() {
+		return cvv;
+	}
+
+	public void setCvv(String cvv) {
+		this.cvv = cvv;
 	}
 
 	public static List<PaymentMethod> getDummyPaymentMethodsList() {
 		List<PaymentMethod> dummyPaymentMethodList = new ArrayList<PaymentMethod>();
 		PaymentMethod paymentOne = new PaymentMethod();
-		paymentOne.setPaymentMethodId(1);
-		paymentOne.setUserid(1);
+		paymentOne.setCardid(1);
+		paymentOne.setUserid(2);
 		paymentOne.setNickName("PNC Bank");
-		paymentOne.setAccountNo(1234);
-		paymentOne.setRoutingNo(5555);
-		paymentOne.setAccountUserName("Vineet Ahirkar");
+		paymentOne.setCardName("Vineet Ahirkar");
+		paymentOne.setCardNumber("123456789");
+		paymentOne.setCardexpirydate("10/19");
+		paymentOne.setCvv("789");
 
 		PaymentMethod paymentTwo = new PaymentMethod();
-		paymentTwo.setPaymentMethodId(2);
-		paymentTwo.setUserid(1);
+		paymentTwo.setCardid(2);
+		paymentTwo.setUserid(2);
 		paymentTwo.setNickName("Bank of America");
-		paymentTwo.setAccountNo(6789);
-		paymentTwo.setRoutingNo(8888);
-		paymentTwo.setAccountUserName("Vineet Ahirkar");
+		paymentTwo.setCardName("Vineet Ahirkar");
+		paymentTwo.setCardNumber("987654321");
+		paymentTwo.setCardexpirydate("3/21");
+		paymentTwo.setCvv("653");
 
 		dummyPaymentMethodList.add(paymentOne);
 		dummyPaymentMethodList.add(paymentTwo);
