@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 public class ConnectionManager {
 	private static String CONNECTION_DRIVER = "jdbc:mariadb://localhost/cryptxmaster";
+	//private static String REMOTE_CONNECTION_DRIVER = "jdbc:mariadb://169.55.144.76:3306/cryptxmaster";
 	private static String USERNAME = "root";
 	private static String PASSWORD = "admin";
 	private static Connection connection;

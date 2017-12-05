@@ -25,7 +25,7 @@ public class UserService implements IUserService {
 	public void createNewUser(CryptxUser userView) throws CryptxException {
 		String query = String.format(
 				"INSERT INTO user (name, email, phone, password, ssn,address, city, country, postalcode) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');",
-				userView.getName(), userView.getEmail(), userView.getPhone(), userView.getPassword(), userView.getSsn(),
+				userView.getName(), userView.getEmail().toLowerCase(), userView.getPhone(), userView.getPassword().toLowerCase(), userView.getSsn(),
 				userView.getAddress(), userView.getCity(), userView.getCountry(), userView.getPostalCode());
 		try {
 			dataAccess.executeQuery(query);

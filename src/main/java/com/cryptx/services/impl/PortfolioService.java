@@ -2,12 +2,15 @@ package com.cryptx.services.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cryptx.dao.IDataAccess;
 import com.cryptx.exception.CryptxException;
+import com.cryptx.exception.EmptyDataException;
 import com.cryptx.models.Portfolio;
 import com.cryptx.services.IPortfolioService;
 
@@ -113,7 +116,8 @@ public class PortfolioService implements IPortfolioService {
 			updateString = String.format("amount = %f", amount);
 		}
 
-		String query = String.format("UPDATE portfolio SET %s WHERE portfolioid = %d", updateString, userPortfolio.getPortfolioId());
+		String query = String.format("UPDATE portfolio SET %s WHERE portfolioid = %d", updateString,
+				userPortfolio.getPortfolioId());
 
 		try {
 			dataAccess.executeQuery(query);
@@ -148,4 +152,93 @@ public class PortfolioService implements IPortfolioService {
 		return amount;
 	}
 
+	@Override
+	public List<Double[]> getPortfolioBitcoinTrend(int userId, int portfolioId) throws CryptxException, EmptyDataException {
+		String query = String.format(
+				"SELECT timestmp, bitcoin FROM portfolio_hourly WHERE userid = %d AND portfolioid = %d", userId,
+				portfolioId);
+		ResultSet rs;
+		try {
+			rs = dataAccess.executeQuery(query);
+			if (!rs.isBeforeFirst()) {
+				throw new EmptyDataException("Resultset Empty");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("SQL Exception. Error: " + e.getMessage());
+		}
+		return buildPortfolioTrendFromResultSet(rs, "bitcoin");
+	}
+
+	@Override
+	public List<Double[]> getPortfolioLitecoinTrend(int userId, int portfolioId) throws CryptxException , EmptyDataException {
+		String query = String.format(
+				"SELECT timestmp, litecoin FROM portfolio_hourly WHERE userid = %d AND portfolioid = %d", userId,
+				portfolioId);
+		ResultSet rs;
+		try {
+			rs = dataAccess.executeQuery(query);
+			if (!rs.isBeforeFirst()) {
+				throw new EmptyDataException("Resultset Empty");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("SQL Exception. Error: " + e.getMessage());
+		}
+		return buildPortfolioTrendFromResultSet(rs, "litecoin");
+	}
+
+	@Override
+	public List<Double[]> getPortfolioEthereumTrend(int userId, int portfolioId) throws CryptxException, EmptyDataException  {
+		String query = String.format(
+				"SELECT timestmp, ethereum FROM portfolio_hourly WHERE userid = %d AND portfolioid = %d", userId,
+				portfolioId);
+		ResultSet rs;
+		try {
+			rs = dataAccess.executeQuery(query);
+			if (!rs.isBeforeFirst()) {
+				throw new EmptyDataException("Resultset Empty");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("SQL Exception. Error: " + e.getMessage());
+		}
+		return buildPortfolioTrendFromResultSet(rs, "ethereum");
+	}
+
+	@Override
+	public List<Double[]> getPortfolioVirtualWalletTrend(int userId, int portfolioId) throws CryptxException, EmptyDataException  {
+		String query = String.format(
+				"SELECT timestmp, amount FROM portfolio_hourly WHERE userid = %d AND portfolioid = %d", userId,
+				portfolioId);
+		ResultSet rs;
+		try {
+			rs = dataAccess.executeQuery(query);
+			if (!rs.isBeforeFirst()) {
+				throw new EmptyDataException("Resultset Empty");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("SQL Exception. Error: " + e.getMessage());
+		}
+		return buildPortfolioTrendFromResultSet(rs, "amount");
+	}
+
+	private List<Double[]> buildPortfolioTrendFromResultSet(ResultSet resultSet, String currency) throws CryptxException{
+		List<Double[]> portfolioTrends = new ArrayList<Double[]>();
+		long timestamp;
+		try {
+			while (resultSet.next()) {
+				Double[] portfolioTrend = new Double[2];
+				timestamp = resultSet.getBigDecimal("timestmp").longValue();
+				portfolioTrend[0] = (double) timestamp * 1000;
+				portfolioTrend[1] = resultSet.getDouble(currency);
+				portfolioTrends.add(portfolioTrend);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CryptxException("SQL Exception. Error: " + e.getMessage());
+		}
+		return portfolioTrends;
+	}
 }

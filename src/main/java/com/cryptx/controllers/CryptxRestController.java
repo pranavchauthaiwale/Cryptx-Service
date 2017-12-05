@@ -106,7 +106,7 @@ public class CryptxRestController {
 			resource.put(message, "User Created Successfully");
 			userService.createNewUser(newUser);
 
-			newUser = userService.findUserByEmail(newUser.getEmail());
+			newUser = userService.findUserByEmail(newUser.getEmail().toLowerCase());
 
 			virtualWalletService.createUserVirtualWallet(newUser.getUserId());
 
@@ -272,13 +272,28 @@ public class CryptxRestController {
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
 			resource.put(message, "Historic Currency Details");
-			resource.put("bitcoin", historicTrendsService.getBitcoinHistoricTrends());
-			resource.put("litecoin", historicTrendsService.getLitecoinHistoricTrends());
-			resource.put("ethereum", historicTrendsService.getEthereumHistoricTrends());
+			try {
+				resource.put("bitcoin", historicTrendsService.getBitcoinHistoricTrends());
+			} catch (EmptyDataException e) {
+				resource.put("bitcoin", new Object[0]);
+			}
+			
+			try {
+				resource.put("litecoin", historicTrendsService.getLitecoinHistoricTrends());
+			} catch (EmptyDataException e) {
+				resource.put("litecoin", new Object[0]);
+			}
+			
+			try {
+				resource.put("ethereum", historicTrendsService.getEthereumHistoricTrends());
+			} catch (EmptyDataException e) {
+				resource.put("ethereum", new Object[0]);
+			}
+			
 		} catch (CryptxException e) {
 			e.printStackTrace();
-			resource.put(message, "Error Deleting Method");
-			resource.put(data, EMPTY_RESPONSE);
+			resource.put(message, "Error in Getting Currency History Method");
+			resource.put(data, new Object[0]);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -288,26 +303,47 @@ public class CryptxRestController {
 		return ResponseEntity.ok(resource);
 	}
 
-	@RequestMapping(value = "portfoliohistory", method = RequestMethod.GET)
-	public ResponseEntity<?> getPortfolioHistory() {
+	@RequestMapping(value = "portfoliohistory/{portfolioId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getPortfolioHistory(@PathVariable int portfolioId, Principal principal) {
 		logger.info(String.format("Requesting historic data of User Portfolio"));
 		Map<String, Object> resource = new HashMap<String, Object>();
 		try {
-			List<Double[]> responseArray = new ArrayList<Double[]>();
-			Double[] arr1 = new Double[2];
-			arr1[0] = 44587789224D;
-			arr1[1] = 6.6;
+			int userId = userService.findUserByEmail(principal.getName()).getUserId();
 
-			Double[] arr2 = new Double[2];
-			arr2[0] = 1154877598D;
-			arr2[1] = 18.6;
-			responseArray.add(arr1);
-			responseArray.add(arr2);
 			resource.put(message, "Historic trends of User Portfolio");
-			resource.put(data, responseArray);
+			try {
+				resource.put("bitcoin", portfolioService.getPortfolioBitcoinTrend(userId, portfolioId));
+			} catch (EmptyDataException e) {
+				resource.put("bitcoin", new Object[0]);
+			}
+
+			try {
+				resource.put("litecoin", portfolioService.getPortfolioLitecoinTrend(userId, portfolioId));
+			} catch (EmptyDataException e) {
+				resource.put("litecoin", new Object[0]);
+			}
+			
+			try {
+				resource.put("ethereum", portfolioService.getPortfolioEthereumTrend(userId, portfolioId));
+			} catch (EmptyDataException e) {
+				resource.put("ethereum", new Object[0]);
+			}
+			
+			try {
+				resource.put("amount", portfolioService.getPortfolioVirtualWalletTrend(userId, portfolioId));
+			} catch (EmptyDataException e) {
+				resource.put("amount", new Object[0]);
+			}
+			
+		} catch (CryptxException e) {
+			e.printStackTrace();
+			resource.put(message, "Error in Getting Currency History Method");
+			resource.put(data, new Object[0]);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		} catch (Exception e) {
 			e.printStackTrace();
 			resource.put(message, "Request Historical Portfolio Trends Failed Unexpectedly");
+			resource.put(data, new Object[0]);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resource);
 		}
 		return ResponseEntity.ok(resource);

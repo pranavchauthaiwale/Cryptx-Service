@@ -78,7 +78,7 @@ public class HistoricTrendsService implements IHistoricTrendsService {
 			while (resultSet.next()) {
 				Double[] currencyTrend = new Double[2];
 				timestamp = resultSet.getBigDecimal("timestmp").longValue();
-				currencyTrend[0] = (double) timestamp;
+				currencyTrend[0] = (double) timestamp * 1000;
 				currencyTrend[1] = resultSet.getDouble(currency);
 				currencyTrends.add(currencyTrend);
 			}
